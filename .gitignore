@@ -1,0 +1,17 @@
+# Credenciales: nunca al repositorio
+config.json
+.env
+
+# Entorno y cachés
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+.vscode/
+
+# Supera el límite de 100 MB de GitHub; se vuelve a descargar (ver data/external/SOURCES.md)
+data/external/osm/*.osm.pbf
+
+# Datos crudos del lakehouse descargados localmente (pesados; se leen directo desde S3)
+data/raw/

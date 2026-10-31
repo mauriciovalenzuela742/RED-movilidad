@@ -1,0 +1,568 @@
+[
+  {
+    "name": "sen_emission_factor_2025",
+    "value": 0.2467,
+    "unit": "tCO2e/MWh",
+    "vehicle": null,
+    "source": "HuellaChile 2025 v2 / Min. Energia (Energia Abierta, AR5)",
+    "url": "https://huellachile.mma.gob.cl/wp-content/uploads/2026/05/HuellaChile-Factores-de-emision2025_-Org-y-Ev_v2-Version-resumen.xlsx",
+    "year": 2026,
+    "confidence": "alta"
+  },
+  {
+    "name": "sen_emission_factor_2024",
+    "value": 0.2131,
+    "unit": "tCO2e/MWh",
+    "vehicle": null,
+    "source": "HuellaChile 2025 v2 / Min. Energia (Energia Abierta, AR5)",
+    "url": "https://huellachile.mma.gob.cl/wp-content/uploads/2026/05/HuellaChile-Factores-de-emision2025_-Org-y-Ev_v2-Version-resumen.xlsx",
+    "year": 2026,
+    "confidence": "alta"
+  },
+  {
+    "name": "sen_emission_factor_2023",
+    "value": 0.2559,
+    "unit": "tCO2e/MWh",
+    "vehicle": null,
+    "source": "HuellaChile 2025 v2 / Min. Energia (Energia Abierta, AR5)",
+    "url": "https://huellachile.mma.gob.cl/wp-content/uploads/2026/05/HuellaChile-Factores-de-emision2025_-Org-y-Ev_v2-Version-resumen.xlsx",
+    "year": 2026,
+    "confidence": "alta"
+  },
+  {
+    "name": "diesel_emission_factor_mobile",
+    "value": 2.74,
+    "unit": "kgCO2e/L",
+    "vehicle": null,
+    "source": "HuellaChile 2025 v2 / IPCC 2006 + BNE 2024",
+    "url": "https://huellachile.mma.gob.cl/wp-content/uploads/2026/05/HuellaChile-Factores-de-emision2025_-Org-y-Ev_v2-Version-resumen.xlsx",
+    "year": 2026,
+    "confidence": "alta"
+  },
+  {
+    "name": "diesel_rigid_12t_urban_delivery_consumption",
+    "value": 21.4,
+    "unit": "L/100 km",
+    "vehicle": "camion rigido diesel 12 t 4x2",
+    "source": "ICCT 2017 (simulacion, ciclo Urban Delivery UE, linea base 2015)",
+    "url": "https://theicct.org/publications/fuel-efficiency-technology-european-heavy-duty-vehicles-baseline-and-potential-2020",
+    "year": 2017,
+    "confidence": "media"
+  },
+  {
+    "name": "santiago_electric_buses_in_operation_2026-02-17",
+    "value": 4088,
+    "unit": "buses",
+    "vehicle": "bus",
+    "source": "DTPM via Reporte Minero (62 % de la flota)",
+    "url": "https://www.reporteminero.cl/noticia/energias-limpias/2026/02/santiago-supera-los-4000-buses-electricos-y-consolida-la-mayor-flota-cero-emision-de-latinoamerica",
+    "year": 2026,
+    "confidence": "media"
+  },
+  {
+    "name": "red_commercial_speed_annual_2025",
+    "value": 16,
+    "unit": "km/h",
+    "vehicle": "bus",
+    "source": "The Clinic citando informe compartido por el MTT (informe de origen no encontrado)",
+    "url": "https://www.theclinic.cl/2026/03/19/micros-en-santiago-son-cada-vez-mas-lentas-velocidad-promedio-bajo-a-16-km-h-y-ministro-de-grange-apunta-a-aumento-de-autos-y-menos-capacidad-vial-por-ciclovias/",
+    "year": 2026,
+    "confidence": "media"
+  },
+  {
+    "name": "red_commercial_speed_am_peak_2025",
+    "value": "15-16",
+    "unit": "km/h",
+    "vehicle": "bus",
+    "source": "The Clinic citando informe compartido por el MTT (informe de origen no encontrado)",
+    "url": "https://www.theclinic.cl/2026/03/19/micros-en-santiago-son-cada-vez-mas-lentas-velocidad-promedio-bajo-a-16-km-h-y-ministro-de-grange-apunta-a-aumento-de-autos-y-menos-capacidad-vial-por-ciclovias/",
+    "year": 2026,
+    "confidence": "media"
+  },
+  {
+    "name": "red_commercial_speed_pm_peak_2025",
+    "value": "16-17",
+    "unit": "km/h",
+    "vehicle": "bus",
+    "source": "The Clinic citando informe compartido por el MTT (informe de origen no encontrado)",
+    "url": "https://www.theclinic.cl/2026/03/19/micros-en-santiago-son-cada-vez-mas-lentas-velocidad-promedio-bajo-a-16-km-h-y-ministro-de-grange-apunta-a-aumento-de-autos-y-menos-capacidad-vial-por-ciclovias/",
+    "year": 2026,
+    "confidence": "media"
+  },
+  {
+    "name": "red_commercial_speed_offpeak_2025",
+    "value": "17-18",
+    "unit": "km/h",
+    "vehicle": "bus",
+    "source": "The Clinic citando informe compartido por el MTT (informe de origen no encontrado)",
+    "url": "https://www.theclinic.cl/2026/03/19/micros-en-santiago-son-cada-vez-mas-lentas-velocidad-promedio-bajo-a-16-km-h-y-ministro-de-grange-apunta-a-aumento-de-autos-y-menos-capacidad-vial-por-ciclovias/",
+    "year": 2026,
+    "confidence": "media"
+  },
+  {
+    "name": "ene_target_freight_100pct_zero_emission_sales",
+    "value": 2045,
+    "unit": "anio",
+    "vehicle": null,
+    "source": "Estrategia Nacional de Electromovilidad, Min. Energia",
+    "url": "https://energia.gob.cl/noticias/nacional/lanzamiento-estrategia-nacional-de-electromovilidad-gobierno-anuncia-que-al-2035-se-venderan-solo-vehiculos-electricos-en-chile",
+    "year": 2021,
+    "confidence": "alta"
+  },
+  {
+    "name": "electrified_trucks_sold_chile_2025",
+    "value": 107,
+    "unit": "unidades",
+    "vehicle": "camion",
+    "source": "ANAC Informe Cero y Bajas Emisiones dic-2025 (Registro Civil)",
+    "url": "https://www.anac.cl/wp-content/uploads/2026/01/12-ANAC-Informe-Cero-y-Bajas-Emisiones-Diciembre-2025.pdf",
+    "year": 2026,
+    "confidence": "media"
+  },
+  {
+    "name": "chargers_operational_chile_2025",
+    "value": 5245,
+    "unit": "cargadores",
+    "vehicle": null,
+    "source": "SEC Reporte Nacional de Infraestructura de Recarga 2026 via Reporte Minero",
+    "url": "https://www.reporteminero.cl/noticia/noticias/2026/09/sec-reporte-nacional-infraestructura-recarga-vehiculos-electricos-chile-2026",
+    "year": 2026,
+    "confidence": "media"
+  },
+  {
+    "name": "chargers_public_chile_2025",
+    "value": 1230,
+    "unit": "cargadores",
+    "vehicle": null,
+    "source": "SEC 2026 via Reporte Minero",
+    "url": "https://www.reporteminero.cl/noticia/noticias/2026/09/sec-reporte-nacional-infraestructura-recarga-vehiculos-electricos-chile-2026",
+    "year": 2026,
+    "confidence": "media"
+  },
+  {
+    "name": "chargers_region_metropolitana_public_plus_private",
+    "value": 3827,
+    "unit": "cargadores",
+    "vehicle": null,
+    "source": "SEC 2026 via Reporte Minero (no separa publicos)",
+    "url": "https://www.reporteminero.cl/noticia/noticias/2026/09/sec-reporte-nacional-infraestructura-recarga-vehiculos-electricos-chile-2026",
+    "year": 2026,
+    "confidence": "media"
+  },
+  {
+    "name": "charging_power_dc_light_truck",
+    "value": 104,
+    "unit": "kW",
+    "vehicle": "Fuso eCanter 9C18e",
+    "source": "Fuso eCanter datasheet 2024 (version europea)",
+    "url": "https://www.fuso-trucks.com/wp-content/uploads/sites/2/2024/05/eCanter_Technical-Datasheets_2024_EN_855T.pdf",
+    "year": 2024,
+    "confidence": "alta"
+  },
+  {
+    "name": "charging_power_ac_depot",
+    "value": 22,
+    "unit": "kW",
+    "vehicle": "Fuso eCanter 9C18e",
+    "source": "Fuso eCanter datasheet 2024",
+    "url": "https://www.fuso-trucks.com/wp-content/uploads/sites/2/2024/05/eCanter_Technical-Datasheets_2024_EN_855T.pdf",
+    "year": 2024,
+    "confidence": "alta"
+  },
+  {
+    "name": "charging_power_dc_heavy_rigid",
+    "value": 160,
+    "unit": "kW",
+    "vehicle": "Mercedes eEconic (4x2 y 6x2/4)",
+    "source": "Mercedes-Benz Trucks eEconic technical data",
+    "url": "https://www.mercedes-benz-trucks.com/int/en/trucks/eeconic.html",
+    "year": 2025,
+    "confidence": "alta"
+  },
+  {
+    "name": "ecanter_gross_vehicle_weight",
+    "value": 8550,
+    "unit": "kg",
+    "vehicle": "Fuso eCanter 9C18e",
+    "source": "Fuso eCanter datasheet 2024",
+    "url": "https://www.fuso-trucks.com/wp-content/uploads/sites/2/2024/05/eCanter_Technical-Datasheets_2024_EN_855T.pdf",
+    "year": 2024,
+    "confidence": "alta"
+  },
+  {
+    "name": "ecanter_empty_weight_battery_L",
+    "value": 4055,
+    "unit": "kg",
+    "vehicle": "Fuso eCanter 9C18e (bateria L)",
+    "source": "Fuso eCanter datasheet 2024",
+    "url": "https://www.fuso-trucks.com/wp-content/uploads/sites/2/2024/05/eCanter_Technical-Datasheets_2024_EN_855T.pdf",
+    "year": 2024,
+    "confidence": "alta"
+  },
+  {
+    "name": "ecanter_chassis_payload_battery_L",
+    "value": 4495,
+    "unit": "kg",
+    "vehicle": "Fuso eCanter 9C18e (bateria L)",
+    "source": "Fuso eCanter datasheet 2024",
+    "url": "https://www.fuso-trucks.com/wp-content/uploads/sites/2/2024/05/eCanter_Technical-Datasheets_2024_EN_855T.pdf",
+    "year": 2024,
+    "confidence": "alta"
+  },
+  {
+    "name": "ecanter_usable_battery_L",
+    "value": 116,
+    "unit": "kWh",
+    "vehicle": "Fuso eCanter 9C18e (bateria L)",
+    "source": "Fuso eCanter datasheet 2024",
+    "url": "https://www.fuso-trucks.com/wp-content/uploads/sites/2/2024/05/eCanter_Technical-Datasheets_2024_EN_855T.pdf",
+    "year": 2024,
+    "confidence": "alta"
+  },
+  {
+    "name": "ecanter_installed_battery_L",
+    "value": 124,
+    "unit": "kWh",
+    "vehicle": "Fuso eCanter 9C18e (bateria L)",
+    "source": "Fuso eCanter datasheet 2024",
+    "url": "https://www.fuso-trucks.com/wp-content/uploads/sites/2/2024/05/eCanter_Technical-Datasheets_2024_EN_855T.pdf",
+    "year": 2024,
+    "confidence": "alta"
+  },
+  {
+    "name": "ecanter_derived_consumption",
+    "value": 0.58,
+    "unit": "kWh/km",
+    "vehicle": "Fuso eCanter 9C18e (bateria L)",
+    "source": "Calculo propio: 116 kWh utilizables / 200 km de rango del fabricante (50 % de carga util, 20 C)",
+    "url": "https://www.fuso-trucks.com/wp-content/uploads/sites/2/2024/05/eCanter_Technical-Datasheets_2024_EN_855T.pdf",
+    "year": 2024,
+    "confidence": "baja"
+  },
+  {
+    "name": "eeconic_kerb_weight_4x2",
+    "value": 8100,
+    "unit": "kg",
+    "vehicle": "Mercedes eEconic 4x2 (19 t)",
+    "source": "Mercedes-Benz Trucks eEconic technical data",
+    "url": "https://www.mercedes-benz-trucks.com/int/en/trucks/eeconic.html",
+    "year": 2025,
+    "confidence": "alta"
+  },
+  {
+    "name": "eeconic_payload_without_body_4x2",
+    "value": 10900,
+    "unit": "kg",
+    "vehicle": "Mercedes eEconic 4x2 (19 t)",
+    "source": "Mercedes-Benz Trucks eEconic technical data",
+    "url": "https://www.mercedes-benz-trucks.com/int/en/trucks/eeconic.html",
+    "year": 2025,
+    "confidence": "alta"
+  },
+  {
+    "name": "eactros300_usable_battery",
+    "value": 291,
+    "unit": "kWh",
+    "vehicle": "Mercedes eActros 300",
+    "source": "Oeko-Institut 2025 citando a Mercedes-Benz (instalada 336 kWh)",
+    "url": "https://www.oeko.de/fileadmin/oekodoc/Real-world-data-analysis-of-battery-electric-trucks.pdf",
+    "year": 2025,
+    "confidence": "media"
+  },
+  {
+    "name": "eactros_real_world_mean_consumption",
+    "value": 0.96,
+    "unit": "kWh/km",
+    "vehicle": "Mercedes eActros 300/400, 11-18 t brutos, 19-21 C",
+    "source": "Oeko-Institut 2025 (19 camiones, >800 eventos, Alemania)",
+    "url": "https://www.oeko.de/fileadmin/oekodoc/Real-world-data-analysis-of-battery-electric-trucks.pdf",
+    "year": 2025,
+    "confidence": "media"
+  },
+  {
+    "name": "oeko_fit_m1_speed_term",
+    "value": 5.1304,
+    "unit": "kWh/km",
+    "vehicle": "camion pesado",
+    "source": "Oeko-Institut 2025: C = m1*exp(-k1*s)+m2*t+m3*w+m4*a+m5, s en km/h",
+    "url": "https://www.oeko.de/fileadmin/oekodoc/Real-world-data-analysis-of-battery-electric-trucks.pdf",
+    "year": 2025,
+    "confidence": "media"
+  },
+  {
+    "name": "oeko_fit_k1",
+    "value": 0.17,
+    "unit": "1/(km/h)",
+    "vehicle": "camion pesado",
+    "source": "Oeko-Institut 2025",
+    "url": "https://www.oeko.de/fileadmin/oekodoc/Real-world-data-analysis-of-battery-electric-trucks.pdf",
+    "year": 2025,
+    "confidence": "media"
+  },
+  {
+    "name": "oeko_fit_m2_temperature",
+    "value": -0.0132,
+    "unit": "kWh/km por C",
+    "vehicle": "camion pesado",
+    "source": "Oeko-Institut 2025",
+    "url": "https://www.oeko.de/fileadmin/oekodoc/Real-world-data-analysis-of-battery-electric-trucks.pdf",
+    "year": 2025,
+    "confidence": "media"
+  },
+  {
+    "name": "oeko_fit_m3_weight",
+    "value": 0.0183,
+    "unit": "kWh/km por t",
+    "vehicle": "camion pesado",
+    "source": "Oeko-Institut 2025",
+    "url": "https://www.oeko.de/fileadmin/oekodoc/Real-world-data-analysis-of-battery-electric-trucks.pdf",
+    "year": 2025,
+    "confidence": "media"
+  },
+  {
+    "name": "oeko_fit_m4_net_altitude_difference",
+    "value": 0.0015,
+    "unit": "kWh/km por m",
+    "vehicle": "camion pesado",
+    "source": "Oeko-Institut 2025 (desnivel neto del evento, no pendiente)",
+    "url": "https://www.oeko.de/fileadmin/oekodoc/Real-world-data-analysis-of-battery-electric-trucks.pdf",
+    "year": 2025,
+    "confidence": "baja"
+  },
+  {
+    "name": "oeko_fit_m5_constant",
+    "value": 0.7091,
+    "unit": "kWh/km",
+    "vehicle": "camion pesado",
+    "source": "Oeko-Institut 2025",
+    "url": "https://www.oeko.de/fileadmin/oekodoc/Real-world-data-analysis-of-battery-electric-trucks.pdf",
+    "year": 2025,
+    "confidence": "media"
+  },
+  {
+    "name": "truck_refrigeration_unit_extra",
+    "value": 0.092,
+    "unit": "kWh/km",
+    "vehicle": "camion pesado con TCU",
+    "source": "Oeko-Institut 2025",
+    "url": "https://www.oeko.de/fileadmin/oekodoc/Real-world-data-analysis-of-battery-electric-trucks.pdf",
+    "year": 2025,
+    "confidence": "media"
+  },
+  {
+    "name": "bus12m_measured_consumption_santiago_BYD_K9FE",
+    "value": 1.006,
+    "unit": "kWh/km",
+    "vehicle": "bus 12 m BYD K9FE",
+    "source": "Galarza 2020 citado por ICCT Sao Paulo 2023 (tabla 1)",
+    "url": "https://theicct.org/wp-content/uploads/2023/02/Operational-analyis-of-battery-electric-buses-in-Sao-Paulo-final-feb2023.pdf",
+    "year": 2023,
+    "confidence": "media"
+  },
+  {
+    "name": "bus18m_measured_consumption_santiago",
+    "value": 1.34,
+    "unit": "kWh/km",
+    "vehicle": "bus articulado 18 m Yutong",
+    "source": "ICCT/CMS para DTPM 2024 (335 dias, odometro + SOC; velocidad media ~12 km/h)",
+    "url": "https://theicct.org/wp-content/uploads/2024/08/ID-59-%E2%80%93-Simulacion-Santiago_final.pdf",
+    "year": 2024,
+    "confidence": "media"
+  },
+  {
+    "name": "bus12m_measured_consumption_sao_paulo",
+    "value": [
+      1.19,
+      1.27
+    ],
+    "unit": "kWh/km",
+    "vehicle": "bus 12.9 m BYD",
+    "source": "ICCT Sao Paulo 2023 (2 buses, 13.6-14.1 km/h)",
+    "url": "https://theicct.org/wp-content/uploads/2023/02/Operational-analyis-of-battery-electric-buses-in-Sao-Paulo-final-feb2023.pdf",
+    "year": 2023,
+    "confidence": "media"
+  },
+  {
+    "name": "bus_sort_urban_cycle_consumption",
+    "value": 0.9353,
+    "unit": "kWh/km",
+    "vehicle": "bus 12.9 m BYD, media carga, HVAC apagado",
+    "source": "ICCT Sao Paulo 2023 (prueba SORT)",
+    "url": "https://theicct.org/wp-content/uploads/2023/02/Operational-analyis-of-battery-electric-buses-in-Sao-Paulo-final-feb2023.pdf",
+    "year": 2023,
+    "confidence": "media"
+  },
+  {
+    "name": "cd_bus",
+    "value": 0.7,
+    "unit": "-",
+    "vehicle": "bus",
+    "source": "Basso et al. 2024; Gao et al. 2019",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0360544223029444",
+    "year": 2024,
+    "confidence": "media"
+  },
+  {
+    "name": "cd_delivery_truck",
+    "value": 0.62,
+    "unit": "-",
+    "vehicle": "camion 15.4 t generico",
+    "source": "Gao et al. 2019 (ORNL), Tabla 1",
+    "url": "https://www.osti.gov/servlets/purl/1494893",
+    "year": 2019,
+    "confidence": "media"
+  },
+  {
+    "name": "crr_bus",
+    "value": 0.01,
+    "unit": "-",
+    "vehicle": "bus",
+    "source": "Basso et al. 2024 (cita a Gao)",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0360544223029444",
+    "year": 2024,
+    "confidence": "media"
+  },
+  {
+    "name": "crr_truck",
+    "value": 0.009,
+    "unit": "-",
+    "vehicle": "camion 15.4 t generico",
+    "source": "Gao et al. 2019 (ORNL)",
+    "url": "https://www.osti.gov/servlets/purl/1494893",
+    "year": 2019,
+    "confidence": "baja"
+  },
+  {
+    "name": "frontal_area_bus",
+    "value": 7.5,
+    "unit": "m2",
+    "vehicle": "bus",
+    "source": "Basso et al. 2024 (dato DTPM: 7.50 diesel, 7.67 electrico)",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0360544223029444",
+    "year": 2024,
+    "confidence": "alta"
+  },
+  {
+    "name": "frontal_area_heavy_truck_generic",
+    "value": 9.0,
+    "unit": "m2",
+    "vehicle": "camion 15.4 t generico",
+    "source": "Gao et al. 2019 (ORNL)",
+    "url": "https://www.osti.gov/servlets/purl/1494893",
+    "year": 2019,
+    "confidence": "baja"
+  },
+  {
+    "name": "frontal_area_truck_7_5_to_12_t",
+    "value": null,
+    "unit": "m2",
+    "vehicle": "camion 7.5-12 t",
+    "source": "sin fuente confiable: calibrar Cd*A contra rango certificado",
+    "url": null,
+    "year": null,
+    "confidence": "baja"
+  },
+  {
+    "name": "drivetrain_efficiency_motor",
+    "value": 0.85,
+    "unit": "-",
+    "vehicle": "bus",
+    "source": "Basso et al. 2024 (cita a Asamer)",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0360544223029444",
+    "year": 2024,
+    "confidence": "media"
+  },
+  {
+    "name": "drivetrain_efficiency_transmission",
+    "value": 0.97,
+    "unit": "-",
+    "vehicle": "bus",
+    "source": "Basso et al. 2024 (cita a Asamer)",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0360544223029444",
+    "year": 2024,
+    "confidence": "media"
+  },
+  {
+    "name": "regen_fraction_range",
+    "value": [
+      0.5,
+      0.65
+    ],
+    "unit": "-",
+    "vehicle": "bus",
+    "source": "Basso et al. 2024 (k_t de Zhang y Yao: 0.5 a 5 m/s, 0.65 a 25 m/s)",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0360544223029444",
+    "year": 2024,
+    "confidence": "media"
+  },
+  {
+    "name": "auxiliary_power_bus",
+    "value": 5.0,
+    "unit": "kW",
+    "vehicle": "bus",
+    "source": "Gao et al. 2019 (ORNL)",
+    "url": "https://www.osti.gov/servlets/purl/1494893",
+    "year": 2019,
+    "confidence": "media"
+  },
+  {
+    "name": "auxiliary_power_truck",
+    "value": 4.0,
+    "unit": "kW",
+    "vehicle": "camion 15.4 t generico",
+    "source": "Gao et al. 2019 (ORNL)",
+    "url": "https://www.osti.gov/servlets/purl/1494893",
+    "year": 2019,
+    "confidence": "media"
+  },
+  {
+    "name": "hvac_energy_bus_santiago",
+    "value": 0.2,
+    "unit": "kWh/km",
+    "vehicle": "bus 18 m",
+    "source": "ICCT/CMS 2024 (supuesto de simulacion)",
+    "url": "https://theicct.org/wp-content/uploads/2024/08/ID-59-%E2%80%93-Simulacion-Santiago_final.pdf",
+    "year": 2024,
+    "confidence": "baja"
+  },
+  {
+    "name": "air_density",
+    "value": 1.16,
+    "unit": "kg/m3",
+    "vehicle": null,
+    "source": "Basso et al. 2024",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0360544223029444",
+    "year": 2024,
+    "confidence": "media"
+  },
+  {
+    "name": "rotational_inertia_factor",
+    "value": 1.0,
+    "unit": "-",
+    "vehicle": "bus",
+    "source": "Basso et al. 2024",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0360544223029444",
+    "year": 2024,
+    "confidence": "media"
+  },
+  {
+    "name": "bus_effect_per_stop_per_km",
+    "value": 0.128,
+    "unit": "kWh/km por parada/km",
+    "vehicle": "bus 40 ft simulado",
+    "source": "Abdelaty y Mohamed 2021 (Energies 14(10):2824)",
+    "url": "https://www.mdpi.com/1996-1073/14/10/2824",
+    "year": 2021,
+    "confidence": "baja"
+  },
+  {
+    "name": "bus_effect_per_percent_grade",
+    "value": 0.38,
+    "unit": "kWh/km por 1 % de pendiente",
+    "vehicle": "bus 40 ft simulado",
+    "source": "Abdelaty y Mohamed 2021",
+    "url": "https://www.mdpi.com/1996-1073/14/10/2824",
+    "year": 2021,
+    "confidence": "baja"
+  }
+]

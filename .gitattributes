@@ -1,0 +1,7 @@
+* text=auto
+*.sh text eol=lf
+*.sbatch text eol=lf
+*.py text eol=lf
+*.parquet binary
+*.tif binary
+*.zip binary

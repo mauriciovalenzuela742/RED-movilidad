@@ -1,0 +1,11 @@
+# Minimal set for batch jobs on NLHPC (no plotting, no notebooks)
+duckdb==1.5.6
+pandas==3.0.6
+pyarrow==26.0.0
+requests==2.34.2
+h3==4.5.0
+shapely==2.2.0
+pyproj==3.8.0
+tzdata==2026.5
+plotly==7.1.0
+pytest==9.1.1

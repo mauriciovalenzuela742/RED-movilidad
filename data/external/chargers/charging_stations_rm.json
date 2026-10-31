@@ -1,0 +1,2141 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-14T02:56:53Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 3487504389,
+  "lat": -33.4423388,
+  "lon": -70.6551213,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "motorcar": "yes",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815",
+    "socket:type2": "1",
+    "socket:type2:output": "22 kW",
+    "socket:type3": "1",
+    "socket:type3:output": "22 kW"
+  }
+},
+{
+  "type": "node",
+  "id": 4081921121,
+  "lat": -33.4753572,
+  "lon": -70.6257751,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 4538667989,
+  "lat": -33.4743188,
+  "lon": -70.6827737,
+  "tags": {
+    "amenity": "charging_station",
+    "operator": "Socosur"
+  }
+},
+{
+  "type": "node",
+  "id": 4554309891,
+  "lat": -33.6089708,
+  "lon": -71.6227765,
+  "tags": {
+    "amenity": "charging_station",
+    "operator": "Copec"
+  }
+},
+{
+  "type": "node",
+  "id": 5010217227,
+  "lat": -33.3987354,
+  "lon": -70.5870519,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 6450901117,
+  "lat": -33.0448935,
+  "lon": -71.4223767,
+  "tags": {
+    "amenity": "charging_station",
+    "name": "Electrolinera Chilquinta"
+  }
+},
+{
+  "type": "node",
+  "id": 6802719162,
+  "lat": -34.0160987,
+  "lon": -70.7029833,
+  "tags": {
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Copec Voltex",
+    "opening_hours": "24/7",
+    "operator": "Copec"
+  }
+},
+{
+  "type": "node",
+  "id": 6802766860,
+  "lat": -34.0122212,
+  "lon": -70.7037572,
+  "tags": {
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Copec Voltex",
+    "opening_hours": "24/7",
+    "operator": "Copec"
+  }
+},
+{
+  "type": "node",
+  "id": 6802767546,
+  "lat": -33.2162585,
+  "lon": -70.7669532,
+  "tags": {
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Copec Voltex",
+    "opening_hours": "24/7",
+    "operator": "Copec"
+  }
+},
+{
+  "type": "node",
+  "id": 6802777813,
+  "lat": -33.3824903,
+  "lon": -70.5893849,
+  "tags": {
+    "amenity": "charging_station",
+    "capacity": "1",
+    "name": "Copec Voltex",
+    "opening_hours": "24/7",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 6802780224,
+  "lat": -33.4341101,
+  "lon": -70.8102774,
+  "tags": {
+    "amenity": "charging_station",
+    "capacity": "1",
+    "name": "Copec Voltex",
+    "opening_hours": "24/7",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956",
+    "socket:chademo": "1",
+    "socket:chademo:output": "50 kW",
+    "socket:type2": "1",
+    "socket:type2:output": "43 kW",
+    "socket:type2_combo": "1",
+    "socket:type2_combo:output": "50 kW"
+  }
+},
+{
+  "type": "node",
+  "id": 6802782413,
+  "lat": -33.6467108,
+  "lon": -71.6246068,
+  "tags": {
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Copec Voltex",
+    "opening_hours": "24/7",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 6802785314,
+  "lat": -33.1285861,
+  "lon": -71.5625856,
+  "tags": {
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Copec Voltex",
+    "opening_hours": "24/7",
+    "operator": "Copec"
+  }
+},
+{
+  "type": "node",
+  "id": 6804220830,
+  "lat": -33.0170650,
+  "lon": -71.5507183,
+  "tags": {
+    "amenity": "charging_station",
+    "capacity": "1",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 6804236557,
+  "lat": -33.4090127,
+  "lon": -70.5452215,
+  "tags": {
+    "amenity": "charging_station",
+    "capacity": "1",
+    "name": "Shell E-pro",
+    "operator": "Shell",
+    "operator:wikidata": "Q110716465"
+  }
+},
+{
+  "type": "node",
+  "id": 6804262033,
+  "lat": -33.4551327,
+  "lon": -70.8031015,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815",
+    "socket:type2": "2",
+    "socket:type2:output": "22 kW"
+  }
+},
+{
+  "type": "node",
+  "id": 6804275675,
+  "lat": -33.5000716,
+  "lon": -70.6166030,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815",
+    "socket:type1": "1",
+    "socket:type1:output": "22 kW",
+    "socket:type2": "2",
+    "socket:type2:output": "22 kW"
+  }
+},
+{
+  "type": "node",
+  "id": 6804299856,
+  "lat": -33.4378594,
+  "lon": -70.6471922,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "brand:wikipedia": "en:Enel X",
+    "capacity": "2",
+    "name": "Enel X",
+    "opening_hours": "24/7",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815",
+    "operator:wikipedia": "en:Enel X",
+    "socket:type2": "1",
+    "socket:type2:output": "22 kW",
+    "socket:type3": "1",
+    "socket:type3:output": "22 kW"
+  }
+},
+{
+  "type": "node",
+  "id": 6804301032,
+  "lat": -33.4138014,
+  "lon": -70.6204146,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "brand:wikipedia": "en:Enel X",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815",
+    "operator:wikipedia": "en:Enel X",
+    "socket:type2": "2",
+    "socket:type2:output": "22 kW"
+  }
+},
+{
+  "type": "node",
+  "id": 6804364644,
+  "lat": -33.3702064,
+  "lon": -70.6639075,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815",
+    "socket:type1": "1",
+    "socket:type1:output": "7 kW",
+    "socket:type2": "8",
+    "socket:type2:output": "7 kW"
+  }
+},
+{
+  "type": "node",
+  "id": 6806718722,
+  "lat": -33.5113018,
+  "lon": -70.8041633,
+  "tags": {
+    "access": "private",
+    "amenity": "charging_station",
+    "capacity": "37",
+    "name": "Engie Vule"
+  }
+},
+{
+  "type": "node",
+  "id": 7786298372,
+  "lat": -34.1688460,
+  "lon": -70.7256907,
+  "tags": {
+    "access": "customers",
+    "amenity": "charging_station",
+    "capacity": "3",
+    "fee": "yes",
+    "name": "Electrolinera CGE",
+    "operator": "CGE"
+  }
+},
+{
+  "type": "node",
+  "id": 8439408942,
+  "lat": -33.4151093,
+  "lon": -70.6173708,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "brand:wikipedia": "en:Enel X",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815",
+    "operator:wikipedia": "en:Enel X"
+  }
+},
+{
+  "type": "node",
+  "id": 8842344364,
+  "lat": -33.4943584,
+  "lon": -70.7055131,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "1",
+    "charging_station:output": "22",
+    "motorcar": "yes",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 9121457466,
+  "lat": -33.6301107,
+  "lon": -70.7615711,
+  "tags": {
+    "amenity": "charging_station",
+    "capacity": "1",
+    "check_date": "2025-07-29",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956",
+    "operator:wikipedia": "de:Copec"
+  }
+},
+{
+  "type": "node",
+  "id": 9234022820,
+  "lat": -33.0452371,
+  "lon": -71.4381264,
+  "tags": {
+    "amenity": "charging_station",
+    "capacity": "1",
+    "operator": "Chilquinta"
+  }
+},
+{
+  "type": "node",
+  "id": 9644692982,
+  "lat": -33.3987146,
+  "lon": -70.7948344,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "brand:wikipedia": "en:Enel X",
+    "capacity": "6",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815",
+    "operator:wikipedia": "en:Enel X"
+  }
+},
+{
+  "type": "node",
+  "id": 9892721223,
+  "lat": -33.4299311,
+  "lon": -70.7377712,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "1",
+    "fee": "yes",
+    "operator": "Copec Voltex",
+    "payment:app": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9958063488,
+  "lat": -33.0137979,
+  "lon": -71.5498929,
+  "tags": {
+    "amenity": "charging_station"
+  }
+},
+{
+  "type": "node",
+  "id": 10582285056,
+  "lat": -32.9507136,
+  "lon": -71.5376798,
+  "tags": {
+    "addr:housenumber": "861",
+    "addr:street": "San Josemaría Escrivá de Balaguer",
+    "amenity": "charging_station",
+    "name": "Enex E-Pro",
+    "operator": "Shell",
+    "socket:chademo": "1",
+    "socket:type2": "1",
+    "socket:type2_combo": "1",
+    "source:ref": "HERE"
+  }
+},
+{
+  "type": "node",
+  "id": 10724347848,
+  "lat": -33.5224707,
+  "lon": -70.8038876,
+  "tags": {
+    "access": "private",
+    "amenity": "charging_station",
+    "capacity": "110",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 10733536818,
+  "lat": -33.4438285,
+  "lon": -70.7769004,
+  "tags": {
+    "access": "private",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 10733536819,
+  "lat": -33.4297228,
+  "lon": -70.7836864,
+  "tags": {
+    "access": "customers",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "fee": "yes",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 10733636653,
+  "lat": -33.4030266,
+  "lon": -70.7312256,
+  "tags": {
+    "access": "customers",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "capacity": "17",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956",
+    "output": "150 kW",
+    "start_date": "2023-02"
+  }
+},
+{
+  "type": "node",
+  "id": 10735958230,
+  "lat": -33.6081581,
+  "lon": -70.6314064,
+  "tags": {
+    "access": "no",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 10742142662,
+  "lat": -33.6331772,
+  "lon": -70.6106722,
+  "tags": {
+    "access": "customers",
+    "amenity": "charging_station",
+    "brand": "Engie",
+    "capacity": "13",
+    "generator:output:electricity": "2.1 MW",
+    "manufacturer": "Engie",
+    "name": "Electroterminal Juanita",
+    "operator": "STP Santiago"
+  }
+},
+{
+  "type": "node",
+  "id": 10778532248,
+  "lat": -33.4035680,
+  "lon": -70.5795314,
+  "tags": {
+    "access": "yes",
+    "addr:city": "Las Condes",
+    "addr:housenumber": "5413",
+    "addr:street": "Avenida Presidente Kennedy",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "170",
+    "generator:output:electricity": "7 kW",
+    "level": "-1;-2",
+    "name": "Green Park Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815",
+    "start_date": "2023-03"
+  }
+},
+{
+  "type": "node",
+  "id": 10822802787,
+  "lat": -33.4542123,
+  "lon": -70.6865034,
+  "tags": {
+    "access": "private",
+    "amenity": "charging_station",
+    "brand": "Copec Voltex",
+    "capacity": "2",
+    "name": "Terrapuerto Turbus",
+    "not:operator:wikidata": "Q1130956",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956",
+    "start_date": "2021"
+  }
+},
+{
+  "type": "node",
+  "id": 10823517346,
+  "lat": -33.4900762,
+  "lon": -70.5937147,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956",
+    "panoramax": "03bd86f4-0406-4ba0-a71b-cbaf5aea9530"
+  }
+},
+{
+  "type": "node",
+  "id": 10825572257,
+  "lat": -33.3801621,
+  "lon": -70.5852148,
+  "tags": {
+    "access": "permissive",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "generator:output:electricity": "22kW",
+    "name": "Enel X",
+    "network": "ElectroRuta Enel",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815",
+    "start_date": "2020-11-19"
+  }
+},
+{
+  "type": "node",
+  "id": 11038473596,
+  "lat": -33.9064886,
+  "lon": -70.7331770,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "fee": "yes",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 11045612754,
+  "lat": -33.3750917,
+  "lon": -70.5320812,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Voltex",
+    "capacity": "4",
+    "fee": "yes",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 11173349323,
+  "lat": -33.5121280,
+  "lon": -70.6569316,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 11558524380,
+  "lat": -33.5956321,
+  "lon": -70.7077351,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Temob",
+    "capacity": "1",
+    "fee": "no",
+    "level": "-1",
+    "name": "Temob",
+    "start_date": "2023-11"
+  }
+},
+{
+  "type": "node",
+  "id": 11831525684,
+  "lat": -33.4042602,
+  "lon": -70.5799754,
+  "tags": {
+    "amenity": "charging_station",
+    "bicycle": "no",
+    "brand": "Enel X",
+    "capacity:motorcar": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 11949130888,
+  "lat": -33.4560614,
+  "lon": -70.7052042,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "103",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815",
+    "start_date": "2024-05-29"
+  }
+},
+{
+  "type": "node",
+  "id": 12036883732,
+  "lat": -32.9660815,
+  "lon": -71.5294166,
+  "tags": {
+    "addr:housenumber": "80",
+    "addr:street": "Dublé Almeyda",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12089310043,
+  "lat": -33.4173530,
+  "lon": -70.6073318,
+  "tags": {
+    "access": "yes",
+    "addr:city": "Providencia",
+    "addr:housename": "Costanera Center",
+    "addr:housenumber": "2461",
+    "addr:street": "Avenida Andrés Bello",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "level": "-2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12089840965,
+  "lat": -33.4033769,
+  "lon": -70.5726378,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "10",
+    "name": "Electroestación Pública Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12094181308,
+  "lat": -33.4181361,
+  "lon": -70.5991330,
+  "tags": {
+    "amenity": "charging_station",
+    "name": "Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 12170483150,
+  "lat": -33.3896163,
+  "lon": -70.5700283,
+  "tags": {
+    "amenity": "charging_station",
+    "operator": "Tesla"
+  }
+},
+{
+  "type": "node",
+  "id": 12170505585,
+  "lat": -33.3866467,
+  "lon": -70.5676880,
+  "tags": {
+    "amenity": "charging_station",
+    "operator": "Enelx"
+  }
+},
+{
+  "type": "node",
+  "id": 12374984799,
+  "lat": -33.2789315,
+  "lon": -70.6285136,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12398476918,
+  "lat": -33.1326198,
+  "lon": -71.5641351,
+  "tags": {
+    "addr:city": "Curauma",
+    "addr:country": "CL",
+    "addr:housenumber": "4650",
+    "addr:street": "Avenida Lomas de la Luz",
+    "amenity": "charging_station",
+    "brand": "Tesla Supercharger",
+    "brand:wikidata": "Q17089620",
+    "capacity": "4",
+    "name": "Tesla Supercharger",
+    "operator": "Tesla, Inc.",
+    "operator:wikidata": "Q478214",
+    "short_name": "Tesla"
+  }
+},
+{
+  "type": "node",
+  "id": 12505397001,
+  "lat": -33.9715415,
+  "lon": -70.7074864,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12518950344,
+  "lat": -33.3886408,
+  "lon": -70.5394702,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12537865986,
+  "lat": -33.2368372,
+  "lon": -70.7587981,
+  "tags": {
+    "access": "customers",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "3",
+    "fee": "yes",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12550233678,
+  "lat": -33.4867246,
+  "lon": -70.6508008,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "1",
+    "fee": "yes",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 12550233695,
+  "lat": -33.5395890,
+  "lon": -70.6656643,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12550253877,
+  "lat": -33.3821231,
+  "lon": -70.5895621,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "6",
+    "fee": "yes",
+    "name": "Copex Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 12550253878,
+  "lat": -33.3942750,
+  "lon": -70.6207967,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12554862198,
+  "lat": -33.3308960,
+  "lon": -70.7032255,
+  "tags": {
+    "access": "yes",
+    "addr:city": "Quilicura",
+    "addr:housenumber": "500",
+    "addr:street": "San Ignacio",
+    "amenity": "charging_station",
+    "brand": "Tesla Supercharger",
+    "brand:wikidata": "Q17089620",
+    "capacity": "4",
+    "fee": "yes",
+    "name": "Tesla  Supercharger",
+    "not:brand:wikidata": "Q478214",
+    "operator": "Tesla",
+    "operator:wikidata": "Q478214"
+  }
+},
+{
+  "type": "node",
+  "id": 12554887525,
+  "lat": -33.2858910,
+  "lon": -70.6763459,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "1",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 12554887527,
+  "lat": -33.2856526,
+  "lon": -70.6775673,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12557424702,
+  "lat": -33.3068530,
+  "lon": -70.6633610,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "1",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 12585954982,
+  "lat": -33.4172844,
+  "lon": -70.6016377,
+  "tags": {
+    "amenity": "charging_station",
+    "name": "Schneider Electric Chile",
+    "operator": "Schneider Electric",
+    "operator:wikidata": "Q49053"
+  }
+},
+{
+  "type": "node",
+  "id": 12585954983,
+  "lat": -33.4172880,
+  "lon": -70.6003513,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12607926410,
+  "lat": -33.8972946,
+  "lon": -71.4538610,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "1",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 12627315266,
+  "lat": -34.1859160,
+  "lon": -70.7573482,
+  "tags": {
+    "access": "private",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "3",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12658495226,
+  "lat": -34.1763384,
+  "lon": -70.7047654,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "4",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12673045694,
+  "lat": -33.6860468,
+  "lon": -70.7260726,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "1",
+    "name": "Enex E-Pro",
+    "operator": "Shell",
+    "operator:wikidata": "Q110716465"
+  }
+},
+{
+  "type": "node",
+  "id": 12673045695,
+  "lat": -33.6819773,
+  "lon": -70.7265790,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "1",
+    "name": "Enex E-Pro",
+    "operator": "Shell",
+    "operator:wikidata": "Q110716465"
+  }
+},
+{
+  "type": "node",
+  "id": 12673540393,
+  "lat": -33.4064545,
+  "lon": -70.7005387,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "3",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12723432011,
+  "lat": -33.4742127,
+  "lon": -70.7403208,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 12723647958,
+  "lat": -33.6330177,
+  "lon": -70.7141404,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 12796258202,
+  "lat": -33.4863097,
+  "lon": -70.5587902,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12798020726,
+  "lat": -33.5701968,
+  "lon": -70.5829418,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 12803403478,
+  "lat": -34.2659731,
+  "lon": -70.8103709,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "3",
+    "fee": "no",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12803507621,
+  "lat": -34.1566435,
+  "lon": -70.7295139,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Enex E-Pro"
+  }
+},
+{
+  "type": "node",
+  "id": 12803507625,
+  "lat": -34.1725512,
+  "lon": -70.7216078,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "3",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12805210131,
+  "lat": -33.3770109,
+  "lon": -70.5713851,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12805210132,
+  "lat": -33.3799708,
+  "lon": -70.5697682,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "3",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12988227073,
+  "lat": -33.5805583,
+  "lon": -70.7140356,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enex",
+    "capacity": "3",
+    "name": "Enex E-Pro"
+  }
+},
+{
+  "type": "node",
+  "id": 12990577009,
+  "lat": -33.6375371,
+  "lon": -70.7078474,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12991037979,
+  "lat": -33.5403067,
+  "lon": -70.7088445,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "3",
+    "fee": "yes",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 12991098330,
+  "lat": -33.4884702,
+  "lon": -70.6512440,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "1",
+    "fee": "yes",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 12992773110,
+  "lat": -33.4400451,
+  "lon": -70.8412898,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 12995045987,
+  "lat": -32.9206924,
+  "lon": -71.5122504,
+  "tags": {
+    "amenity": "charging_station"
+  }
+},
+{
+  "type": "node",
+  "id": 13016586379,
+  "lat": -33.4620116,
+  "lon": -70.5732963,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "6",
+    "fee": "yes",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 13082041906,
+  "lat": -34.1633276,
+  "lon": -70.7532654,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "14",
+    "name": "Chass",
+    "source": "https://www.chass.cl/"
+  }
+},
+{
+  "type": "node",
+  "id": 13082117776,
+  "lat": -33.3966427,
+  "lon": -70.5016212,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "8",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13104565984,
+  "lat": -33.6000525,
+  "lon": -70.5758197,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13104642109,
+  "lat": -33.5192470,
+  "lon": -70.5987911,
+  "tags": {
+    "addr:city": "La Florida",
+    "addr:country": "CL",
+    "addr:housename": "Mall Plaza Vespucio",
+    "addr:housenumber": "7110",
+    "addr:street": "Avenida Vicuña Mackenna Oriente",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13104642110,
+  "lat": -33.5193686,
+  "lon": -70.5990293,
+  "tags": {
+    "addr:city": "La Florida",
+    "addr:country": "CL",
+    "addr:housename": "Mall Plaza Vespucio",
+    "addr:housenumber": "7110",
+    "addr:street": "Avenida Vicuña Mackenna Oriente",
+    "amenity": "charging_station",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 13104645910,
+  "lat": -33.5228830,
+  "lon": -70.5951753,
+  "tags": {
+    "amenity": "charging_station",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 13250764223,
+  "lat": -33.4004728,
+  "lon": -70.5751566,
+  "tags": {
+    "amenity": "charging_station",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 13265669301,
+  "lat": -33.4417297,
+  "lon": -70.5346140,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13302541770,
+  "lat": -33.3678007,
+  "lon": -70.6816474,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13372902588,
+  "lat": -33.4052376,
+  "lon": -71.1370704,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 13372953295,
+  "lat": -33.4018813,
+  "lon": -71.1289563,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 13378396132,
+  "lat": -33.3935168,
+  "lon": -70.5768291,
+  "tags": {
+    "amenity": "charging_station",
+    "bicycle": "no",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 13378400442,
+  "lat": -33.5922600,
+  "lon": -71.6135336,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "3",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13378938317,
+  "lat": -33.9633464,
+  "lon": -70.7092038,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13387343747,
+  "lat": -33.7558352,
+  "lon": -70.8981484,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Copec Voltex",
+    "capacity": "2",
+    "charge": "395 CLP/kWh",
+    "covered": "no",
+    "description": "Estación de carga con potencia de hasta 22 kilovatios para vehículos eléctricos. Tiene espacio para hasta 2 (dos) vehículos simultaneamente.",
+    "fee": "yes",
+    "name": "Cargador de vehículos eléctricos",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956",
+    "payment:app": "yes",
+    "website": "https://copecvoltex.cl/pages/red-de-carga-publica"
+  }
+},
+{
+  "type": "node",
+  "id": 13396136488,
+  "lat": -33.4387796,
+  "lon": -70.5616246,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13411473525,
+  "lat": -33.0060825,
+  "lon": -71.5456547,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13454772678,
+  "lat": -33.4445916,
+  "lon": -70.6455107,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13533028803,
+  "lat": -34.1911740,
+  "lon": -70.7042624,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13591551014,
+  "lat": -33.4479052,
+  "lon": -70.6131936,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13628750634,
+  "lat": -33.4231086,
+  "lon": -70.5386742,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13628750741,
+  "lat": -33.4910509,
+  "lon": -70.5731148,
+  "tags": {
+    "amenity": "charging_station",
+    "name": "Copec Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 13628750751,
+  "lat": -33.4606766,
+  "lon": -70.5682400,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13631100860,
+  "lat": -33.4145557,
+  "lon": -70.7179622,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13631100861,
+  "lat": -33.4343808,
+  "lon": -70.7853952,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13631100872,
+  "lat": -33.4632319,
+  "lon": -70.7231783,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13631100880,
+  "lat": -33.4960871,
+  "lon": -70.7570053,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13631100904,
+  "lat": -33.4866448,
+  "lon": -70.6992453,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Kia",
+    "operator": "Kia"
+  }
+},
+{
+  "type": "node",
+  "id": 13638733395,
+  "lat": -33.4403546,
+  "lon": -70.6471489,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13660505662,
+  "lat": -33.4955474,
+  "lon": -70.5583445,
+  "tags": {
+    "access": "private",
+    "amenity": "charging_station",
+    "operator": "Copec Voltex"
+  }
+},
+{
+  "type": "node",
+  "id": 13685587496,
+  "lat": -33.4767484,
+  "lon": -70.6415496,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13735078434,
+  "lat": -33.6351541,
+  "lon": -70.5726127,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "name": "Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 13735930865,
+  "lat": -33.4167906,
+  "lon": -70.6049458,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13735930868,
+  "lat": -33.3985250,
+  "lon": -70.6005976,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "name": "Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 13772766138,
+  "lat": -33.4139962,
+  "lon": -70.5780238,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Porsche",
+    "brand:wikidata": "Q40993",
+    "capacity": "3",
+    "name": "Porsche Destination Charging",
+    "operator": "Porsche",
+    "operator:wikidata": "Q40993"
+  }
+},
+{
+  "type": "node",
+  "id": 13805150529,
+  "lat": -33.4570921,
+  "lon": -70.5709072,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "1",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13805150536,
+  "lat": -33.4239039,
+  "lon": -70.5800584,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13805150539,
+  "lat": -33.4119083,
+  "lon": -70.5783298,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13911045266,
+  "lat": -33.4024836,
+  "lon": -70.5806396,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13921573555,
+  "lat": -33.4006793,
+  "lon": -70.5752900,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13921788847,
+  "lat": -33.3726053,
+  "lon": -70.6639073,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13948814534,
+  "lat": -33.4854526,
+  "lon": -70.6504228,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station"
+  }
+},
+{
+  "type": "node",
+  "id": 13953287729,
+  "lat": -33.4104375,
+  "lon": -70.5698865,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13986616716,
+  "lat": -33.3744045,
+  "lon": -70.6345121,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 13989214890,
+  "lat": -33.3742103,
+  "lon": -70.5197996,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "name": "Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 13989216396,
+  "lat": -33.4249777,
+  "lon": -70.5631972,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 13989244309,
+  "lat": -33.4173573,
+  "lon": -70.5521818,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "4",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 14060069198,
+  "lat": -33.4033920,
+  "lon": -70.6812362,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815"
+  }
+},
+{
+  "type": "node",
+  "id": 14145479652,
+  "lat": -33.4670164,
+  "lon": -70.6229694,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "2",
+    "name": "Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 14184016671,
+  "lat": -33.1331512,
+  "lon": -71.5546589,
+  "tags": {
+    "access": "yes",
+    "amenity": "charging_station",
+    "capacity": "32",
+    "name": "Hub Nexe Energía",
+    "source": "https://nexe.cl/"
+  }
+},
+{
+  "type": "node",
+  "id": 14197550614,
+  "lat": -33.3538491,
+  "lon": -70.5399123,
+  "tags": {
+    "amenity": "charging_station",
+    "name": "Voltex",
+    "operator": "Copec",
+    "operator:wikidata": "Q1130956"
+  }
+},
+{
+  "type": "node",
+  "id": 14197550707,
+  "lat": -33.3449262,
+  "lon": -70.5436566,
+  "tags": {
+    "amenity": "charging_station",
+    "name": "Enex E-Pro"
+  }
+},
+{
+  "type": "node",
+  "id": 14201652452,
+  "lat": -33.4014155,
+  "lon": -70.5990797,
+  "tags": {
+    "amenity": "charging_station",
+    "brand": "Enel X",
+    "brand:wikidata": "Q5376815",
+    "capacity": "2",
+    "fee": "yes",
+    "motorcar": "yes",
+    "name": "Enel X",
+    "operator": "Enel X",
+    "operator:wikidata": "Q5376815",
+    "wikimedia_commons": "File:Electrolinera Enel X, Vitacura, Santiago 20260322.jpg"
+  }
+},
+{
+  "type": "way",
+  "id": 573378580,
+  "center": {
+    "lat": -33.0426157,
+    "lon": -71.6048026
+  },
+  "tags": {
+    "amenity": "charging_station",
+    "description": "Nueva electrolinera",
+    "name": "Electrolinera",
+    "source": "local knowledge",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 1169229741,
+  "center": {
+    "lat": -33.4708152,
+    "lon": -70.7632840
+  },
+  "tags": {
+    "access": "private",
+    "amenity": "charging_station",
+    "capacity": "74",
+    "name": "Enel x Metbus",
+    "operator": "Enel",
+    "socket:type2:output": "80 kW"
+  }
+}
+
+  ]
+}
