@@ -23,7 +23,7 @@ Leer esta sección basta para continuar; no hace falta recorrer el código.
   2. `.venv/Scripts/python.exe -m pulso.coverage --stage1-only` → días existentes y faltantes (solo lista archivos).
   3. `.venv/Scripts/python.exe -m pulso.coverage` (o `--days N` para los N más recientes) → filas/buses/rutas por día.
      Guarda avance cada 7 días; si vencen las credenciales, se reemplaza `sts.json` y se relanza: retoma solo.
-     Salidas en `outputs/` (ver `--out`).
+     Salidas en `outputs/phase0/` (cambiar con `--out`).
   4. Perfil de calidad de 3 días (laboral, sábado, domingo):
      `python -m pulso.quality --dates 2026-10-07 2026-10-10 2026-10-11` → `quality_report.md`.
   5. Con eso, decidir la compuerta G0 y la regla ruta lakehouse → `shape_id` GTFS (ver `PLAN.md`, sección 5).
