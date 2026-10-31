@@ -27,6 +27,8 @@ CONFIG_PATHS = [
     PROJECT_ROOT / "config.json",
     PROJECT_ROOT / "vendor" / "datopia-notebooks" / "config.json",
 ]
+# Temporary S3 credentials (STS) pasted by hand, used when there is no email/password.
+STS_PATHS = [PROJECT_ROOT / "sts.json"]
 # Values shipped in vendor/datopia-notebooks/config.example.json
 PLACEHOLDERS = {"tu-email@ejemplo.com", "TuContraseña", ""}
 
@@ -89,6 +91,53 @@ def load_credentials() -> tuple[str, str]:
     )
 
 
+_STS_KEYS = {
+    "access_key_id": ("access_key_id", "AccessKeyId", "aws_access_key_id", "AWS_ACCESS_KEY_ID", "KEY_ID"),
+    "secret_access_key": ("secret_access_key", "SecretAccessKey", "aws_secret_access_key",
+                          "AWS_SECRET_ACCESS_KEY", "SECRET"),
+    "session_token": ("session_token", "SessionToken", "aws_session_token", "AWS_SESSION_TOKEN",
+                      "SESSION_TOKEN"),
+    "expires_at": ("expires_at", "Expiration", "expiration"),
+    "bucket": ("bucket",),
+    "region": ("region", "AWS_REGION", "AWS_DEFAULT_REGION", "REGION"),
+}
+
+
+def _normalize_sts(raw: dict) -> dict | None:
+    if isinstance(raw.get("Credentials"), dict):  # raw `aws sts` response
+        raw = {**raw, **raw["Credentials"]}
+    out = {}
+    for key, aliases in _STS_KEYS.items():
+        for a in aliases:
+            if raw.get(a):
+                out[key] = str(raw[a]).strip()
+                break
+    if all(out.get(k) for k in ("access_key_id", "secret_access_key", "session_token")):
+        return out
+    return None
+
+
+def load_sts() -> dict | None:
+    """Temporary S3 credentials: sts.json in the project root, then AWS_* env vars.
+
+    sts.json may be the JSON returned by POST /auth/session/s3 as is, or any JSON with
+    access key / secret / session token under the usual AWS names. Re-read on every
+    refresh, so replacing the file with new credentials keeps a long job going.
+    """
+    for path in STS_PATHS:
+        if path.is_file():
+            try:
+                found = _normalize_sts(json.loads(path.read_text(encoding="utf-8-sig")))
+            except (ValueError, AttributeError) as exc:
+                raise CredentialsError(f"{path} exists but is not valid JSON.") from exc
+            if not found:
+                raise CredentialsError(
+                    f"{path} needs access_key_id, secret_access_key and session_token."
+                )
+            return found
+    return _normalize_sts(dict(os.environ))
+
+
 # --------------------------------------------------------------------------- session
 def _parse_expiry(value, now: float) -> float:
     """expires_at may be epoch seconds/ms or an ISO string; default to now + 1 h."""
@@ -115,8 +164,18 @@ class DatopiaSession:
 
     def __init__(self, email: str | None = None, password: str | None = None,
                  api_url: str = API_URL, timeout: float = 30):
+        self.static = False  # True: temporary STS credentials given by hand, no login
         if email is None or password is None:
-            email, password = load_credentials()
+            try:
+                email, password = load_credentials()
+            except CredentialsError as exc:
+                if load_sts() is None:
+                    raise CredentialsError(
+                        f"{exc}\nOr give temporary S3 credentials in {STS_PATHS[0]} "
+                        "(the JSON from /auth/session/s3) or in AWS_ACCESS_KEY_ID, "
+                        "AWS_SECRET_ACCESS_KEY and AWS_SESSION_TOKEN."
+                    ) from None
+                self.static = True
         self.email, self._password = email, password
         self.api_url = api_url.rstrip("/")
         self.timeout = timeout
@@ -150,6 +209,9 @@ class DatopiaSession:
         """Log in and fetch fresh S3 credentials."""
         global BASE
         with self._lock:
+            if self.static:
+                self._load_static()
+                return
             tok = self._post("/auth/login", json={"email": self.email, "password": self._password})
             id_token = tok.get("id_token")
             if not id_token:
@@ -166,6 +228,27 @@ class DatopiaSession:
             )
             self.expires_at = _parse_expiry(creds.get("expires_at"), time.time())
             BASE = _base_for(self.bucket)
+
+    def _load_static(self) -> None:
+        global BASE
+        creds = load_sts()
+        if creds is None:
+            raise CredentialsError("Temporary S3 credentials disappeared.")
+        now = time.time()
+        expiry = _parse_expiry(creds.get("expires_at"), now) if creds.get("expires_at") else None
+        if expiry is not None and expiry <= now:
+            raise DatopiaError(
+                "The temporary S3 credentials expired. Put new ones in "
+                f"{STS_PATHS[0]} (or the AWS_* variables) and run again."
+            )
+        self.creds = creds
+        self.bucket = creds.get("bucket") or DEFAULT_BUCKET
+        self.region = creds.get("region") or DEFAULT_REGION
+        # Unknown expiry: re-read the source every 10 min in case it was replaced.
+        self.expires_at = expiry if expiry is not None else now + 600 + self.refresh_before
+        if expiry is not None:
+            self.refresh_before = min(self.refresh_before, 60)
+        BASE = _base_for(self.bucket)
 
     @property
     def seconds_left(self) -> float:

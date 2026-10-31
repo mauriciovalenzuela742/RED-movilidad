@@ -8,6 +8,29 @@ electromovilidad).
 
 El plan vigente está en [`PLAN.md`](PLAN.md). El código Python vive en el paquete `pulso`.
 
+## Estado actual y cómo retomar (actualizado 31-oct-2026)
+
+Leer esta sección basta para continuar; no hace falta recorrer el código.
+
+- **Hecho:** cliente del lakehouse (`pulso/datopia.py`) con dos modos de acceso: usuario/contraseña
+  (`config.json`) o credenciales S3 temporales (`sts.json`, ~1 h). Cobertura, perfil de calidad,
+  capa de tramos GTFS/DEM y optimizador sintético. 76 tests offline pasan (`python -m pytest -q`).
+- **Nunca corrido contra datos reales.** No hay resultados del lakehouse todavía.
+- **Bloqueo actual:** faltan credenciales. El usuario tiene credenciales **temporales**; debe pegarlas en
+  `sts.json` (formato abajo, en *Credenciales*) y avisar, porque vencen en ~1 h.
+- **Siguiente paso, en este orden**, apenas exista `sts.json`:
+  1. `.venv/Scripts/python.exe -m pulso.ping` → confirma acceso (filas, buses, rango horario de un día).
+  2. `.venv/Scripts/python.exe -m pulso.coverage --stage1-only` → días existentes y faltantes (solo lista archivos).
+  3. `.venv/Scripts/python.exe -m pulso.coverage` (o `--days N` para los N más recientes) → filas/buses/rutas por día.
+     Guarda avance cada 7 días; si vencen las credenciales, se reemplaza `sts.json` y se relanza: retoma solo.
+     Salidas en `outputs/` (ver `--out`).
+  4. Perfil de calidad de 3 días (laboral, sábado, domingo):
+     `python -m pulso.quality --dates 2026-10-07 2026-10-10 2026-10-11` → `quality_report.md`.
+  5. Con eso, decidir la compuerta G0 y la regla ruta lakehouse → `shape_id` GTFS (ver `PLAN.md`, sección 5).
+- **Cómputo pesado** (histórico completo): mandarlo a NLHPC con los jobs de `slurm/`, no correrlo local.
+- **Reglas del proyecto:** documentación en español; no inventar cifras (todo número sale de una consulta);
+  credenciales nunca al repo; los resultados de `outputs/evrp_demo.json` son sintéticos.
+
 > Origen: el proyecto nació como **PulsoRED** para el hackathon Breaking Barriers
 > (AWS × U. de Chile, desafío CASE, oct-2026). Ese plan está archivado en
 > [`docs/archivo/`](docs/archivo/plan_hackathon_aws_case.md).
@@ -83,6 +106,16 @@ Se buscan en este orden (los valores de ejemplo se ignoran):
 3. `vendor/datopia-notebooks/config.json`
 
 Formato: `{"test_user": {"email": "tu@correo.cl", "password": "..."}}`. `config.json` está en `.gitignore`: **nunca se sube**.
+
+Si solo tienes **credenciales S3 temporales** (duran ~1 h), sin usuario y contraseña, ponlas en
+`sts.json` en la raíz (también en `.gitignore`). Sirve el JSON que entrega `/auth/session/s3` tal cual,
+o este formato mínimo:
+
+    {"access_key_id": "...", "secret_access_key": "...", "session_token": "...", "expires_at": "2026-10-31T23:00:00Z"}
+
+También se aceptan las variables `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` y `AWS_SESSION_TOKEN`.
+Cuando vencen, el proceso se detiene con un aviso; reemplaza `sts.json` con credenciales nuevas y vuelve
+a correr (la cobertura retoma donde quedó).
 
 ### Uso
 

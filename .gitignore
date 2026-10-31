@@ -1,5 +1,6 @@
 # Credenciales: nunca al repositorio
 config.json
+sts.json
 .env
 
 # Entorno y cachés
