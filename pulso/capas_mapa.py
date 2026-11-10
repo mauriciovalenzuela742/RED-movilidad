@@ -62,6 +62,7 @@ def pendiente() -> list[dict]:
                           columns=["phys_id", "grade_pct", "n_routes", "length_m"])
     # geometría de cada tramo físico: la de su primer tramo de trazado (todos recorren la misma calle)
     geo = seg.drop_duplicates("phys_id").merge(fis, on="phys_id")
+    geo = geo[geo.grade_pct.notna()]  # tramos sin pendiente (sin DEM): NaN no es JSON válido y no hay qué pintar
     return [{"a": [_r(r.start_lon), _r(r.start_lat)], "b": [_r(r.end_lon), _r(r.end_lat)],
              "p": round(float(r.grade_pct), 1), "n": int(r.n_routes)}
             for r in geo.itertuples(index=False)]
@@ -110,7 +111,9 @@ def main(argv=None) -> int:
     for nombre, fn in CAPAS.items():
         filas = fn()
         ruta = args.destino / f"{nombre}.json"
-        ruta.write_text(json.dumps(filas, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        # allow_nan=False: un NaN que se cuele falla aquí y no en el navegador
+        ruta.write_text(json.dumps(filas, ensure_ascii=False, separators=(",", ":"), allow_nan=False),
+                        encoding="utf-8")
         print(f"{nombre}: {len(filas):,} elementos, {ruta.stat().st_size / 1e6:.1f} MB")
     print(f"Listo. Capas en {args.destino}")
     return 0
