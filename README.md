@@ -156,6 +156,15 @@ Para levantarlo en el computador local (con `sts.json` o `config.json` vigentes)
     uv run mapa-cache --mes 2026-10       # o --dia 2026-10-07 para un solo día (más rápido)
     uv run mapa-api --periodo 2026-10     # abrir http://127.0.0.1:8900
 
+**Sin credenciales (demo con datos SIMULADOS):** `python -m pulso.demo_mapa` genera en `mapa/datos_demo/`
+un día laboral (2026-10-07) y un sábado (2026-10-10) con buses que siguen los trazados y tiempos de viaje
+planificados del GTFS, más ruido (~5 min). No son datos reales: patentes `DEMO-NNNN`, velocidades del
+itinerario, y el número de buses sale más alto que la flota real (la asignación de buses a viajes es una
+aproximación). Para levantarlo (bash, desde `mapa/`):
+
+    DATOS_LOCAL="$PWD/datos_demo" CACHE_BASE="$PWD/cache_demo" uv run mapa-cache --mes 2026-10
+    DATOS_LOCAL="$PWD/datos_demo" CACHE_BASE="$PWD/cache_demo" uv run mapa-api --periodo 2026-10
+
 `mapa-cache --mes` toma todos los días de ese mes que haya en `datos_local/`. Tests del mapa:
 `cd mapa && uv run pytest`. El `demo.ipynb` de `mapa/` es el notebook original de Flavio (descarga con
 usuario y contraseña); `pulso.descarga_mapa` hace lo mismo con cualquiera de nuestras credenciales,
