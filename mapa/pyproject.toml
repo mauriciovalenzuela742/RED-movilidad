@@ -1,0 +1,59 @@
+[project]
+name = "mapa-velocidad-red"
+version = "0.2.0"
+description = "Visualizador de velocidad de buses RED (Santiago): mapa de calor, recorridos y trayectos"
+readme = "README.md"
+requires-python = ">=3.10"
+# Solo lo que necesitan la API y la construcción de la caché (lo del notebook va en su grupo)
+dependencies = [
+    "fastapi>=0.115",
+    "polars>=1.20",
+    "pyarrow>=17",
+    "uvicorn>=0.30",
+]
+
+[project.scripts]
+mapa-api = "mapa_red.api:main"
+mapa-cache = "mapa_red.cache:main"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.27",  # cliente de pruebas de FastAPI
+    "pytest>=8",
+    "ruff>=0.6",
+]
+# demo.ipynb: descarga desde el lakehouse y exploración
+notebook = [
+    "duckdb>=1.5.6",
+    "ipykernel>=7.3.0",
+    "matplotlib>=3.10.9",
+    "pandas>=2.3.3",
+    "plotly>=7.1.0",
+    "requests>=2.34.2",
+]
+
+[tool.uv]
+# `uv sync` instala todo para desarrollar; en un servidor: `uv sync --no-default-groups`
+default-groups = ["dev", "notebook"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mapa_red"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]  # líneas largas: las decide el formato, no el linter
+
+[tool.ruff.lint.isort]
+known-first-party = ["mapa_red"]

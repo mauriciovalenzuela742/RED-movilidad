@@ -1,0 +1,7 @@
+{
+  "_instrucciones": "Copia este archivo a config.json y completa tus valores. Nunca comitear config.json.",
+  "test_user": {
+    "email": "tu-email@ejemplo.com",
+    "password": "TuContraseña"
+  }
+}
