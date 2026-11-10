@@ -72,3 +72,20 @@ def test_errores_de_entrada_son_400_con_mensaje(cliente):
         r = cliente.get(ruta, params=params)
         assert r.status_code == 400, ruta
         assert mensaje in r.json()["detail"], ruta
+
+
+def test_capas_de_referencia(rutas, tmp_path):
+    """Solo se ofrecen y sirven las capas conocidas que existen; sin carpeta, el mapa funciona sin ellas."""
+    import dataclasses
+    import json
+
+    (tmp_path / "trazados.json").write_text(json.dumps([{"id": "405I", "camino": [[-70.6, -33.4]]}]))
+    (tmp_path / "otra.json").write_text("[]")  # desconocida: no se sirve
+    with TestClient(crear_app(PERIODO, dataclasses.replace(rutas, capas=tmp_path))) as c:
+        assert '"capas": ["trazados"]' in c.get("/config.js").text
+        assert c.get("/capas/trazados.json").json()[0]["id"] == "405I"
+        assert c.get("/capas/pendiente.json").status_code == 404  # conocida pero sin archivo
+        assert c.get("/capas/otra.json").status_code == 404
+    with TestClient(crear_app(PERIODO, rutas)) as c:  # rutas sin capas
+        assert '"capas": []' in c.get("/config.js").text
+        assert c.get("/capas/trazados.json").status_code == 404

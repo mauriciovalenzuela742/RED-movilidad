@@ -16,3 +16,6 @@ config.json
 # Temporales del notebook de descarga
 duckdb_tmp/
 .ipynb_checkpoints/
+
+# Capas de referencia (python -m pulso.capas_mapa): se regeneran
+capas/

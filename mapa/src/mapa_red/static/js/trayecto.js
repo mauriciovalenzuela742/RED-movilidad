@@ -10,6 +10,7 @@
 import { iconoPlay } from "./avisos.js";
 import { COLOR_BORDE, COLOR_OTROS, colorPara, coloresPorRecorrido } from "./colores.js";
 import { fueraDeServicio, textoValor } from "./dominio.js";
+import { conReferencia } from "./referencia.js";
 import { estado, tray, vista } from "./estado.js";
 import { $, consulta, fmt, hhmm, pedirJson } from "./util.js";
 
@@ -227,7 +228,7 @@ function sinSolaparse(puntos, texto, arriba) {
 }
 
 function redibujarTrayecto() {
-  vista.overlay.setProps({ layers: capasTrayecto() });
+  vista.overlay.setProps({ layers: conReferencia(capasTrayecto()) });
   const texto = tray.tiempo == null ? "todo" : hhmm(tray.tiempo);
   if ($("trayHora").textContent !== texto) $("trayHora").textContent = texto;
   $("trayTiempo").setAttribute("aria-valuetext", tray.tiempo == null ? "día completo" : hhmm(tray.tiempo));

@@ -2,6 +2,7 @@
 import { COLOR_OTROS, COLOR_SIN_DATOS, METRICAS, PALETA, RAMPA, colorPara } from "./colores.js";
 import { METROS_POR_GRADO } from "./dominio.js";
 import { datos, estado, tipicas, tray } from "./estado.js";
+import { tooltipReferencia } from "./referencia.js";
 import { usaTipicas } from "./tipicas.js";
 import { capasTrayecto, colorActual, colorRecorrido } from "./trayecto.js";
 import { $, esc, fmt } from "./util.js";
@@ -106,6 +107,8 @@ const muestra = c => `<span style="display:inline-block;width:10px;height:10px;b
 
 export function tooltip({ object: d }) {
   if (!d) return null;
+  const ref = tooltipReferencia(d);  // trazados GTFS, pendiente, paraderos, cargadores
+  if (ref) return html(ref);
   if (d.tipo === "punto" || d.tipo === "tramo" || d.tipo === "camino") {  // trayecto: punto GPS o línea
     const porVelocidad = colorActual() === "velocidad";
     const enc = (tray.varios ? `<b>Bus ${esc(d.patente)}</b><br>` : "") +

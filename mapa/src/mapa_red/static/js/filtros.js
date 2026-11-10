@@ -6,6 +6,7 @@ import { datos, estado } from "./estado.js";
 import { encuadrarCeldas, encuadrarTrayecto, volverAVistaInicial } from "./mapa.js";
 import { refrescar, setModo } from "./panel.js";
 import { pintarRanking } from "./ranking.js";
+import { pintarPanelReferencia } from "./referencia.js";
 import { cargarTipicas } from "./tipicas.js";
 import { cargarDias, puedeTrayecto, vaciarTrayecto } from "./trayecto.js";
 import { $, consulta, esc, fmt, pedirJson } from "./util.js";
@@ -59,6 +60,7 @@ export async function aplicarFiltros({ encuadre = true } = {}) {
     if (!puedeTrayecto() && estado.modo === "trayecto") setModo(n ? "recorrido" : "calor", false);
     if (!n && estado.modo === "recorrido") setModo("calor", false);
     refrescar();
+    pintarPanelReferencia($("refPanel"));  // cuántos trazados y paraderos del servicio filtrado
     pintarRanking();
     cargarTipicas();  // las trayectorias típicas llegan después, sin bloquear el resto
     if (encuadre) {

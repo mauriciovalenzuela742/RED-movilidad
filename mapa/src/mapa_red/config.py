@@ -5,6 +5,8 @@ pueden pasar sus propias rutas sin tocar el entorno.
     DATOS_LOCAL   parquet diarios `year=YYYY/month=MM/day=DD/*.parquet`  (por defecto: <repo>/datos_local)
     CACHE_BASE    carpeta que contiene `cache_polars_<periodo>/`         (por defecto: <repo>)
     PERIODO       período que sirve la API: mes YYYY-MM o día YYYY-MM-DD (por defecto: 2025-09)
+    CAPAS         capas de referencia `<nombre>.json` (trazados, pendiente, paraderos, cargadores)
+                  (por defecto: <repo>/capas; si no existe, el mapa funciona sin ellas)
 """
 
 from __future__ import annotations
@@ -21,11 +23,13 @@ PERIODO_POR_DEFECTO = "2025-09"
 class Rutas:
     datos_local: Path  # parquet diarios
     cache_base: Path   # carpeta que contiene cache_polars_<periodo>/
+    capas: Path | None = None  # capas de referencia (<nombre>.json, de `python -m pulso.capas_mapa`); opcional
 
     @classmethod
     def desde_entorno(cls) -> Rutas:
         return cls(datos_local=Path(os.environ.get("DATOS_LOCAL", RAIZ / "datos_local")),
-                   cache_base=Path(os.environ.get("CACHE_BASE", RAIZ)))
+                   cache_base=Path(os.environ.get("CACHE_BASE", RAIZ)),
+                   capas=Path(os.environ.get("CAPAS", RAIZ / "capas")))
 
     def carpeta_cache(self, periodo: str) -> Path:
         return self.cache_base / f"cache_polars_{periodo}"

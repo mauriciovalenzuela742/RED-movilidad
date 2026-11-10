@@ -143,6 +143,8 @@ input[type=checkbox] { accent-color: var(--md-sys-color-primary); width: 18px; h
   color: var(--md-sys-color-on-surface-variant); font-size: 12px; }
 .chk { display: flex; align-items: center; gap: 12px; margin-top: 8px; color: var(--md-sys-color-on-surface);
   font-size: 14px; font-weight: 400; letter-spacing: .25px; cursor: pointer; }
+/* Capas de referencia: muestra del color del punto (cargadores) junto al nombre */
+.punto-ref { width: 10px; height: 10px; border-radius: 50%; flex: none; margin-right: -4px; box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(0,0,0,.2); }
 
 /* ── Selector de vista = barra de navegación M3: ícono arriba, etiqueta abajo, indicador en píldora ──── */
 .nav-modos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 16px;

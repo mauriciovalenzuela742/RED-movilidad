@@ -8,16 +8,17 @@
 import { activarAvisos, conCarga, mostrarError } from "./avisos.js";
 import { mejorarSelects } from "./combobox.js";
 import { DIMENSIONES, ETIQUETA, textoValor } from "./dominio.js";
-import { estado, tray, vista } from "./estado.js";
+import { datos, estado, tray, vista } from "./estado.js";
 import { aplicarFiltros } from "./filtros.js";
 import { crearMapa, encuadrarTrayecto, ubicarReproductor } from "./mapa.js";
 import { alternarAnimacionHora, pararHora, refrescar, setModo } from "./panel.js";
 import { ordenarPor, pintarRanking } from "./ranking.js";
+import { alternarCapa, pintarPanelReferencia } from "./referencia.js";
 import {
   alternarReproduccion, cargarDias, cargarTrayecto, colorearPor, irA, mostrarEtiquetas, pararAnimacion,
   redibujarSiQuieto, resaltarBus,
 } from "./trayecto.js";
-import { leerUrl } from "./url.js";
+import { capasDeUrl, leerUrl } from "./url.js";
 import { $ } from "./util.js";
 
 // Carga con aviso y, si falla, error con reintentar; después redibuja y encuadra el trayecto (y el
@@ -134,6 +135,17 @@ function controlesPaneles() {
   };
 }
 
+// Capas de referencia (trazados GTFS, pendiente, paraderos, cargadores): casillas del panel y las de la URL
+function controlesReferencia() {
+  const panel = $("refPanel");
+  const redibujar = () => { if (datos.C) refrescar(); pintarPanelReferencia(panel); };
+  const activar = (nombre, si) =>
+    alternarCapa(nombre, si, redibujar).catch(e => mostrarError(e, () => activar(nombre, true)));
+  panel.addEventListener("change", e => { if (e.target.dataset.capa) activar(e.target.dataset.capa, e.target.checked); });
+  pintarPanelReferencia(panel);
+  for (const n of capasDeUrl()) activar(n, true);
+}
+
 // Con varios buses en Trayecto: ver solo uno (mismo día y filtros)
 function verSoloBus(patente) {
   estado.filtros.patente = patente;
@@ -165,4 +177,5 @@ controlesCalor();
 controlesPaneles();
 activarAvisos();
 leerUrl();  // filtros y vista de un enlace compartido
+controlesReferencia();
 aplicarFiltros({ encuadre: Object.keys(estado.filtros).length > 0 });

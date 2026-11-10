@@ -31,6 +31,14 @@ from .consultas import ConsultaInvalida
 from .esquema import DIMENSIONES
 
 ESTATICO = Path(__file__).resolve().parent / "static"
+# Capas de referencia que conoce la página (js/referencia.js); se ofrecen solo las que existen en Rutas.capas
+CAPAS_REFERENCIA = ("trazados", "pendiente", "paraderos", "cargadores")
+
+
+def capas_disponibles(rutas: Rutas) -> list[str]:
+    if rutas.capas is None:
+        return []
+    return [c for c in CAPAS_REFERENCIA if (rutas.capas / f"{c}.json").is_file()]
 
 
 def _filtros(servicio: str | None = None, sentido: str | None = None, recorrido: str | None = None,
@@ -60,7 +68,8 @@ def crear_app(periodo: str | None = None, rutas: Rutas | None = None) -> FastAPI
         app.state.ranking_global = {g: consultas.ranking(cache, g, {}).write_json().encode() for g in DIMENSIONES}
         app.state.config_js = "window.CONFIG = " + json.dumps({
             "periodo": periodo, "tam": cache.tam,
-            "dias_laboral": int(dias.get("0", 0)), "dias_finde": int(dias.get("1", 0))}) + ";"
+            "dias_laboral": int(dias.get("0", 0)), "dias_finde": int(dias.get("1", 0)),
+            "capas": capas_disponibles(rutas)}) + ";"
         yield
 
     app = FastAPI(title="Velocidad buses RED", lifespan=ciclo_de_vida)
@@ -127,6 +136,14 @@ def crear_app(periodo: str | None = None, rutas: Rutas | None = None) -> FastAPI
     def trayectos(dia: str, servicio: str | None = None, sentido: str | None = None, recorrido: str | None = None):
         """Puntos GPS de todos los buses que hicieron lo filtrado ese día (con su patente)."""
         return _json(consultas.trayectos(cache(), _filtros(servicio, sentido, recorrido), dia).write_json())
+
+    @app.get("/capas/{nombre}.json")
+    def capa(nombre: str):
+        """Capa de referencia (trazados GTFS, pendiente, paraderos, cargadores), tal como la exportó
+        `python -m pulso.capas_mapa`. Solo los nombres conocidos: nada de rutas arbitrarias del disco."""
+        if nombre not in capas_disponibles(rutas):
+            return JSONResponse({"detail": f"Capa no disponible: {nombre}"}, status_code=404)
+        return FileResponse(rutas.capas / f"{nombre}.json", media_type="application/json")
 
     @app.get("/")
     def pagina():

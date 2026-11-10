@@ -165,6 +165,20 @@ aproximación). Para levantarlo (bash, desde `mapa/`):
     DATOS_LOCAL="$PWD/datos_demo" CACHE_BASE="$PWD/cache_demo" uv run mapa-cache --mes 2026-10
     DATOS_LOCAL="$PWD/datos_demo" CACHE_BASE="$PWD/cache_demo" uv run mapa-api --periodo 2026-10
 
+**Capas de referencia del proyecto en el mapa.** `python -m pulso.capas_mapa` (~1 min) exporta a `mapa/capas/`
+cuatro capas que el mapa ofrece en el bloque *Capas de referencia* del panel, encima de cualquier vista
+(calor, recorridos o trayecto) y guardadas en la URL (`?capas=trazados,pendiente`):
+
+| Capa | Fuente | Qué muestra |
+|---|---|---|
+| Trazados GTFS | `data/derived/shapes.parquet` | Trazado oficial de cada recorrido; con un servicio filtrado, solo el suyo |
+| Pendiente de las calles | `segments` + `physical_segments` (GTFS + DEM satelital Copernicus GLO-30) | 44 mil tramos de ~100 m coloreados por pendiente |
+| Paraderos | `data/derived/shape_stops.parquet` | Paraderos con los servicios que se detienen; con filtro, solo los del servicio |
+| Cargadores eléctricos | `data/external/chargers` (OSM) | 144 estaciones (incluye algunas de la costa: Valparaíso, San Antonio) |
+
+El cruce servicio GTFS → servicio del GPS usa una regla **provisional** (`"405"` → `"T405"`) hasta revisar
+los textos de ruta reales (PLAN.md, línea A). Si `mapa/capas/` no existe, el mapa funciona igual sin el bloque.
+
 `mapa-cache --mes` toma todos los días de ese mes que haya en `datos_local/`. Tests del mapa:
 `cd mapa && uv run pytest`. El `demo.ipynb` de `mapa/` es el notebook original de Flavio (descarga con
 usuario y contraseña); `pulso.descarga_mapa` hace lo mismo con cualquiera de nuestras credenciales,

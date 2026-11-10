@@ -7,6 +7,7 @@ import { METROS_POR_GRADO, marcaCodigo } from "./dominio.js";
 import { datos, estado, tipicas, tray, vista } from "./estado.js";
 import { ubicarReproductor } from "./mapa.js";
 import { pintarRanking } from "./ranking.js";
+import { conReferencia } from "./referencia.js";
 import { cargarTipicas } from "./tipicas.js";
 import { colorActual, colorRecorrido, nombreFiltro, pararAnimacion } from "./trayecto.js";
 import { guardarUrl } from "./url.js";
@@ -92,7 +93,7 @@ function leyendaRecorridos() {
 export function refrescar() {
   const { celdas, total } = calcular();
   datos.ultimasCeldas = celdas;
-  vista.overlay.setProps({ layers: capas(celdas) });
+  vista.overlay.setProps({ layers: conReferencia(capas(celdas)) });
   leyenda();
   const hh = String(estado.hora).padStart(2, "0");
   const celda = `celdas de ~${Math.round(CONFIG.tam * METROS_POR_GRADO)} m`;

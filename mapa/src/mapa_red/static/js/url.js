@@ -4,6 +4,7 @@ import { METRICAS } from "./colores.js";
 import { DIMENSIONES } from "./dominio.js";
 import { estado, tray } from "./estado.js";
 import { setModo } from "./panel.js";
+import { CAPAS_REF, ref } from "./referencia.js";
 import { $ } from "./util.js";
 
 const RETARDO_MS = 400;
@@ -24,11 +25,16 @@ function escribirUrl() {
   if (!estado.todoDia) p.set("hora", estado.hora);
   if (estado.modo === "trayecto" && tray.dia) p.set("dia", tray.dia);
   if (estado.modo === "trayecto" && tray.colorPor) p.set("color", tray.colorPor);
+  if (ref.activas.size) p.set("capas", [...ref.activas].join(","));
   const q = p.toString(), url = location.pathname + (q ? "?" + q : "");
   try {
     if (url !== location.pathname + location.search) history.replaceState(null, "", url);
   } catch { /* la URL es una comodidad: si el navegador la limita, la app sigue igual */ }
 }
+
+// Capas de referencia pedidas en la URL (?capas=trazados,pendiente); las desconocidas se ignoran
+export const capasDeUrl = () =>
+  (new URLSearchParams(location.search).get("capas") || "").split(",").filter(c => c in CAPAS_REF);
 
 // Aplica al estado (y a los controles) lo que venga en la URL; lo inválido se ignora
 export function leerUrl() {

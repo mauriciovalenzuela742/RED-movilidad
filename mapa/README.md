@@ -24,6 +24,11 @@ con las consultas en Polars, y una página estática con deck.gl y MapLibre.
 - **Ranking de recorridos**, ordenable por cualquier columna (por defecto, más registros primero). Clic en
   una fila para verlo.
 
+- **Capas de referencia** (agregadas en RED-movilidad): trazados GTFS, pendiente de las calles (GTFS + DEM
+  Copernicus), paraderos y cargadores eléctricos, encima de cualquier vista. Las exporta
+  `python -m pulso.capas_mapa` (raíz del repo) a `capas/` (variable `CAPAS`); el servidor las sirve en
+  `/capas/<nombre>.json` y la página las pide al activarlas (`js/referencia.js`). Sin `capas/`, no aparecen.
+
 Filtros: servicio, sentido, recorrido y bus (patente). La vista queda en la URL (filtros, modo, métrica,
 hora y día), así que se puede compartir o guardar, ej. `/?recorrido=T301 00R&patente=BJFV-17&modo=trayecto`.
 
