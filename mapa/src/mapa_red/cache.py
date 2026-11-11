@@ -1,14 +1,17 @@
 """
 Construcción de la caché del mapa de velocidad (Polars) desde los parquet diarios de posiciones de buses
 RED (`datos_local/year=YYYY/month=MM/day=DD/*.parquet`). En AWS corre como tarea programada tras la
-actualización diaria del lakehouse; la API solo lee la caché resultante.
+actualización diaria del lakehouse. La API solo lee la caché que sale de aquí, nunca los parquet diarios.
 
 Arma `cache_polars_<periodo>/`:
-    agg/grupo=NN.parquet   celdas de ~100 m por recorrido × bus × hora × tipo de día (sumas para métricas)
-    celdas_global.parquet  lo mismo sin recorrido ni bus (vista sin filtros)
-    ranking_<dim>.parquet  métricas por servicio, sentido, recorrido y patente
-    dias_bus.parquet       registros con posición por bus × día operativo × recorrido
-    meta.json              tamaño de celda, días por tipo y versión
+    agg/grupo=NN.parquet     celdas de ~100 m por recorrido × bus × hora × tipo de día (sumas para métricas)
+    celdas_global.parquet    lo mismo sin recorrido ni bus (vista sin filtros)
+    ranking_<dim>.parquet    métricas por servicio, sentido, recorrido y patente
+    dias_bus.parquet         registros con posición por bus × día operativo × recorrido
+    trayectos/dia=AAAA-MM-DD.parquet
+                             los puntos GPS de cada día operativo, con su número de viaje
+    tipicas.parquet          la trayectoria típica (un viaje real) de cada recorrido
+    meta.json                tamaño de celda, días por tipo y versión
 
 Uso:
     uv run mapa-cache                    # mes 2025-09
@@ -27,6 +30,7 @@ import time
 from pathlib import Path
 
 import polars as pl
+import pyarrow.parquet as pq
 
 from .config import PERIODO_POR_DEFECTO, Rutas
 from .esquema import (
@@ -39,14 +43,18 @@ from .esquema import (
     SENTIDO,
     SERVICIO,
     SUMAS,
+    ZONA,
     dia_operativo,
     hora_local,
     km_desde_anterior,
+    km_entre,
+    viaje,
 )
 
 # 2: sin columna `chofer` ni `op_bus.parquet`; días por bus solo con registros con posición
 # 3: `ranking_patente.parquet` con el grupo de cada patente (la API lee solo ese archivo al filtrar por bus)
-VERSION = 3
+# 4: se agregan `trayectos/` y `tipicas.parquet`, y la API deja de leer los parquet diarios
+VERSION = 4
 
 # Caja aproximada del Gran Santiago (descarta GPS fuera de la ciudad)
 LON_MIN, LON_MAX = -71.0, -70.3
@@ -56,6 +64,15 @@ VEL_MAX = 100       # km/h — lecturas sobre esto se consideran ruido
 VEL_DETENIDO = 3    # km/h — bajo esto el bus se considera detenido
 N_GRUPOS = 16       # grupos de patentes en que se divide la caché (más grupos = menos memoria)
 TAM_CELDA = 0.001   # grados (≈ 100 m)
+# Filas por row group en trayectos/. Un recorrido en un día tiene entre 15 y 60 mil puntos, así que queda en
+# unos pocos y la API lee solo esos.
+FILAS_GRUPO_TRAYECTOS = 20_000
+# Trayectoria típica: si ningún viaje llega a esta distancia de punta a punta, el recorrido es un circuito
+# (parte y termina en el mismo lugar)
+EXTENSION_MIN_KM = 1.0
+# Columnas de tipicas.parquet (sirve para escribirlo vacío cuando no hay datos)
+ESQUEMA_TIPICAS = {"recorrido": pl.String, "patente": pl.String, "dia": pl.String, "inicio": pl.String,
+                   "fin": pl.String, "n": pl.UInt32, "camino": pl.List(pl.List(pl.Float64))}
 
 # Velocidad comercial en ruta = km recorridos / tiempo en el recorrido, incluidas las detenciones normales
 # (paraderos, semáforos, congestión). No cuenta huecos sin señal de más de PAUSA_NUEVO_VIAJE, ni:
@@ -171,6 +188,110 @@ def consulta_dias_bus(lf: pl.LazyFrame) -> pl.LazyFrame:
               .with_columns(servicio=SERVICIO, sentido=SENTIDO))
 
 
+def puntos_dia(crudo: pl.LazyFrame, d0: dt.date) -> pl.LazyFrame:
+    """
+    Los puntos GPS de todos los buses en el día operativo `d0`, listos para el modo Trayecto.
+
+    Son los mismos puntos que cuenta `dias_bus` (los que tienen posición). Cada uno lleva su número de viaje,
+    calculado con el día completo del bus. Quedan ordenados por recorrido, bus y hora, para que la API lea solo
+    la parte del archivo que necesita.
+    """
+    # El día operativo (de 04:00 a 04:00) cae entre dos particiones UTC: la de ese día y la del siguiente.
+    # Filtrar primero por ese rango le permite a Polars saltarse los demás archivos; si no, leería el mes
+    # entero por cada día.
+    desde = dt.datetime.combine(d0, dt.time(), tzinfo=dt.timezone.utc)
+    en_sus_particiones = pl.col("timestamp_gps_utc").is_between(desde, desde + dt.timedelta(days=2), closed="left")
+    return (crudo
+            .filter(en_sus_particiones & (dia_operativo() == d0) & CON_COORDENADAS)
+            .select(patente="plate", ts="timestamp_gps_utc", lon="lon", lat="lat", speed="speed", recorrido=RECORRIDO)
+            .with_columns(servicio=SERVICIO, sentido=SENTIDO)
+            .sort("patente", "ts")               # en orden de hora para numerar los viajes…
+            .with_columns(viaje=viaje())
+            .sort("recorrido", "patente", "ts")  # …y por recorrido para guardarlos
+            .select("servicio", "sentido", "recorrido", "patente", "ts", "lon", "lat", "speed", "viaje"))
+
+
+def escribir_trayectos(puntos: pl.DataFrame, archivo: Path) -> None:
+    """
+    Guarda los puntos de un día con pyarrow en vez de Polars, porque permite elegir cómo se codifica cada
+    columna. Así el archivo pesa la mitad (un día de septiembre de 2025: 53 MB en vez de 95) y Polars lo lee
+    igual de rápido.
+    """
+    pq.write_table(
+        puntos.to_arrow(), archivo, compression="zstd", row_group_size=FILAS_GRUPO_TRAYECTOS,
+        # Los textos se repiten mucho: van como diccionario
+        use_dictionary=["servicio", "sentido", "recorrido", "patente"],
+        column_encoding={
+            # La hora y el viaje avanzan de a poco: se guarda cuánto cambian de un punto al siguiente
+            "ts": "DELTA_BINARY_PACKED", "viaje": "DELTA_BINARY_PACKED",
+            # Los decimales comprimen mucho mejor con sus bytes separados
+            "lon": "BYTE_STREAM_SPLIT", "lat": "BYTE_STREAM_SPLIT", "speed": "BYTE_STREAM_SPLIT",
+        })
+
+
+# ── Trayectoria típica de cada recorrido ─────────────────────────────────────
+# Es un viaje real que sirve de muestra del recorrido. Se toma un bus-día "normal" (con una cantidad de
+# registros parecida a la mediana del recorrido) y, de sus viajes en ese recorrido, el que llega más lejos de
+# punta a punta, o sea, de terminal a terminal. No sirve el de más puntos: suele ser una ida y vuelta con el
+# letrero sin cambiar, o un viaje con una espera larga. La excepción son los circuitos, que parten y terminan
+# en el mismo lugar: ahí todos los viajes van ~0 km de punta a punta, y se elige el de más puntos.
+
+def candidatos_tipica(dias_bus: pl.LazyFrame) -> pl.LazyFrame:
+    """
+    Hasta 3 bus-día por recorrido: los de cantidad de registros más cercana a la mediana del recorrido (con
+    20 o más). `rango` da el orden de preferencia; se usa el primero que tenga un viaje de 10 puntos o más.
+    """
+    distancia_a_la_mediana = (pl.col("n") - pl.col("n").median().over("recorrido")).abs()
+    return (dias_bus
+            .filter(pl.col("n") >= 20)
+            .with_columns(dist=distancia_a_la_mediana)
+            .sort("recorrido", "dist", "patente", "dia")  # patente y día solo desempatan: siempre sale lo mismo
+            .with_columns(rango=pl.int_range(pl.len()).over("recorrido"))
+            .filter(pl.col("rango") < 3)
+            .select("recorrido", "patente", "dia", "rango"))
+
+
+def viajes_candidatos(puntos: pl.DataFrame, candidatos: pl.DataFrame) -> pl.DataFrame:
+    """
+    Resume cada viaje de los candidatos de un día en su recorrido: cuántos puntos tiene, a qué hora empezó y
+    terminó, cuántos km hay de punta a punta y el camino completo. Se calcula al tiro (no queda lazy) para que
+    los puntos del día se puedan soltar de la memoria antes de pasar al siguiente.
+    """
+    de_punta_a_punta = km_entre(pl.col("lon").first(), pl.col("lat").first(),
+                                pl.col("lon").last(), pl.col("lat").last())
+    camino = pl.concat_list(pl.col("lon").cast(pl.Float64).round(5), pl.col("lat").cast(pl.Float64).round(5))
+    return (puntos.lazy()
+            .join(candidatos.lazy(), on=["recorrido", "patente"])
+            .sort("recorrido", "patente", "ts")  # el join puede desordenar los puntos, y el camino va en orden
+            .group_by("recorrido", "rango", "patente", "dia", "viaje")
+            .agg(n=pl.len(), inicio=pl.col("ts").first(), fin=pl.col("ts").last(),
+                 extension=de_punta_a_punta, camino=camino)
+            .collect())
+
+
+def elegir_tipicas(viajes: pl.LazyFrame) -> pl.LazyFrame:
+    """La trayectoria típica de cada recorrido: el mejor viaje del primer candidato que tenga uno de 10 puntos
+    o más."""
+    # Si ningún viaje del candidato llega a 1 km de punta a punta, el recorrido es un circuito: los viajes se
+    # comparan por cantidad de puntos en vez de por distancia
+    es_circuito = pl.col("extension").max().over("recorrido", "rango") < EXTENSION_MIN_KM
+    puntaje = pl.when(es_circuito).then(pl.col("n").cast(pl.Float64)).otherwise("extension")
+    return (viajes
+            .filter(pl.col("n") >= 10)
+            .with_columns(puntaje=puntaje)
+            # Primero el candidato preferido y, dentro de él, el viaje de más puntaje (si empatan, el de más
+            # puntos y luego el más temprano)
+            .sort(["recorrido", "rango", "puntaje", "n", "inicio"], descending=[False, False, True, True, False])
+            .unique("recorrido", keep="first", maintain_order=True)
+            .select("recorrido", "patente", pl.col("dia").cast(pl.String), _hora_local("inicio"),
+                    _hora_local("fin"), pl.col("n").cast(pl.UInt32), "camino"))
+
+
+def _hora_local(columna: str) -> pl.Expr:
+    """La hora de Chile como texto HH:MM."""
+    return pl.col(columna).dt.convert_time_zone(ZONA).dt.strftime("%H:%M")
+
+
 def construir_cache(archivos: list[Path], carpeta: Path, tam: float = TAM_CELDA) -> None:
     """Arma la caché en una carpeta temporal y la reemplaza al final (si falla, la anterior queda intacta)."""
     print(f"Construyendo caché Polars desde {len(archivos)} archivos en {N_GRUPOS} grupos de patentes…")
@@ -208,8 +329,24 @@ def construir_cache(archivos: list[Path], carpeta: Path, tam: float = TAM_CELDA)
     ], engine="streaming")
     shutil.rmtree(tmp / "dias")
 
+    # Los trayectos se guardan día por día. Mientras cada día está en memoria, se resumen también los viajes de
+    # sus candidatos a trayectoria típica, para no tener que volver a leerlo después.
+    dias_bus = pl.scan_parquet(tmp / "dias_bus.parquet")
+    candidatos = candidatos_tipica(dias_bus).collect()
+    (tmp / "trayectos").mkdir()
+    viajes = []
+    for d0 in dias_bus.select(pl.col("dia").unique().sort()).collect().to_series():
+        # Este paso sí trae el día a memoria: pyarrow escribe desde memoria (con un sink lazy de Polars no se
+        # puede elegir la codificación de cada columna), y de paso sirve para los candidatos del día
+        puntos = puntos_dia(crudo, d0).collect()
+        escribir_trayectos(puntos, tmp / "trayectos" / f"dia={d0}.parquet")
+        viajes.append(viajes_candidatos(puntos, candidatos.filter(pl.col("dia") == d0)))
+        print(f"  trayectos del {d0}: {puntos.height:,} puntos ({time.time() - t0:.0f} s)")
+    tipicas = elegir_tipicas(pl.concat(viajes).lazy()) if viajes else pl.LazyFrame(schema=ESQUEMA_TIPICAS)
+    tipicas.sink_parquet(tmp / "tipicas.parquet")
+
     filas_total = agg_todo.select(pl.len()).collect().item()
-    por_tipo = (pl.scan_parquet(tmp / "dias_bus.parquet").select("dia").unique()
+    por_tipo = (dias_bus.select("dia").unique()
                   .with_columns(tipo=pl.when(es_fin_de_semana(pl.col("dia"))).then(1).otherwise(0))
                   .group_by("tipo").len().collect())
     meta = {"version": VERSION, "tam": tam, "n_grupos": N_GRUPOS, "filas": filas_total,

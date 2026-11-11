@@ -36,24 +36,31 @@ export const puedeTrayecto = () => !!(estado.filtros.patente || estado.filtros.s
 export const nombreFiltro = () => estado.filtros.recorrido || [estado.filtros.servicio,
   estado.filtros.sentido && textoValor("sentido", estado.filtros.sentido).toLowerCase()].filter(Boolean).join(" ");
 
+// Días con datos (vienen en /vista, o de /dias al entrar al modo sin bus). Con bus y filtro de servicio /
+// sentido / recorrido, solo los días en que el bus hizo eso; sin bus, los días en que alguien hizo lo
+// filtrado. Se mantiene el día elegido si sigue en la lista; si no, el de más puntos.
 export async function cargarDias() {
-  // Con bus y filtro de servicio / sentido / recorrido, solo los días en que el bus hizo eso;
-  // sin bus, los días en que alguien hizo lo filtrado. Se mantiene el día elegido si sigue en la lista.
-  tray.dias = await pedirJson("/dias" + consulta(estado.filtros));
+  ponerDias(await pedirJson("/dias" + consulta(estado.filtros)));
+  await cargarTrayecto();
+}
+
+export function ponerDias(dias) {
+  tray.dias = dias;
   if (!tray.dias.some(d => d.dia === tray.dia))
     tray.dia = tray.dias.reduce((a, b) => (b.n_filtro > a.n_filtro ? b : a), tray.dias[0] || {}).dia || null;
   $("trayDia").innerHTML = tray.dias.length ? tray.dias.map(d =>
     `<option value="${d.dia}" data-sec="${d.n_filtro < d.n ? `${fmt(d.n_filtro, 0)} de ${fmt(d.n, 0)}` : fmt(d.n, 0)} puntos">${d.dia}</option>`).join("")
     : `<option value="">Ningún día con estos filtros</option>`;
   $("trayDia").value = tray.dia || "";
-  await cargarTrayecto();
 }
 
-export async function cargarTrayecto() {
+// `vigente`: si al llegar la respuesta ya no lo es (los filtros cambiaron entretanto), no se usa
+export async function cargarTrayecto(vigente = () => true) {
   pararAnimacion(); tray.tiempo = null; tray.resaltado = null;
   const varios = !estado.filtros.patente;
   if (!tray.dia) { tray.varios = varios; preparar([]); return; }
   const filas = await pedirJson((varios ? "/trayectos" : "/trayecto") + consulta(estado.filtros, { dia: tray.dia }));
+  if (!vigente()) return;
   tray.varios = varios;  // junto con los puntos: mientras llegan, sigue lo anterior completo
   preparar(filas);
 }

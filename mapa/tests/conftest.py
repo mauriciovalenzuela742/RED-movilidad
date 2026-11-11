@@ -6,10 +6,12 @@ Día 2025-09-10 (miércoles, laboral) y 2025-09-13 (sábado). Hora de Chile en s
     AAAA11  T101 00I de 09:00 a 10:00 local (hacia el este), luego T101 00R de vuelta (10:20 a 11:20)
     BBBB22  T101 00I de 09:00 a 10:00, el sábado
     CCCC33  T202 00I de 09:00 a 10:00, y T303 00I solo con registros sin posición (lon / lat nulos)
-    DDDD44  T404 00I con un registro fuera de la ciudad (lo descarta la caché, no el trayecto)
+    DDDD44  T404 00I con un registro fuera de la ciudad (lo descartan las celdas, no el trayecto)
     EEEE55  T505 00I de punta a punta (09:00 a 10:00) y, 30 min después, una ida y vuelta con el mismo
             letrero (10:30 a 12:00, más puntos): la trayectoria típica es la de punta a punta
     FFFF66  T606 00I con un registro que salta 22 km (salto de GPS) a la mitad del viaje
+    GGGG77  T707 00R en circuito: una vuelta que termina donde partió (09:00 a 10:30) y, 30 min después, un
+            tramo corto (11:00 a 11:15): la trayectoria típica es la vuelta, el viaje de más puntos
 """
 
 from __future__ import annotations
@@ -58,7 +60,10 @@ def _filas_dia(dia: str) -> list[dict]:
                     + _viaje("EEEE55", "T505 00I", a_las(11, 15), 45, -70.72, -70.75, lat=-33.40))
     salto = _viaje("FFFF66", "T606 00I", a_las(9), 30, -70.66, -70.64, lat=-33.46)
     salto[30]["lon"] = -70.40  # 22 km al este en 30 s (sigue dentro de la caja de Santiago)
-    return filas + sin_posicion + fuera + punta_a_punta + ida_y_vuelta + salto
+    circuito = (_viaje("GGGG77", "T707 00R", a_las(9), 45, -70.62, -70.60, lat=-33.42)
+                + _viaje("GGGG77", "T707 00R", a_las(9, 45), 45, -70.60, -70.62, lat=-33.42)
+                + _viaje("GGGG77", "T707 00R", a_las(11), 15, -70.62, -70.615, lat=-33.42))
+    return filas + sin_posicion + fuera + punta_a_punta + ida_y_vuelta + salto + circuito
 
 
 @pytest.fixture(scope="session")

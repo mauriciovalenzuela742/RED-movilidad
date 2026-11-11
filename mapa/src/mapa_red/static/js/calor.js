@@ -1,20 +1,18 @@
 // Mapa de calor: matrices por celda que manda el servidor y su suma según tipo de día y hora.
 import { datos, estado } from "./estado.js";
-import { consulta, pedir } from "./util.js";
 
 // Los mismos tipos que consultas.TIPOS_BINARIOS en el servidor (los conteos van como uint16 o, si no caben, uint32)
 const TIPOS = { float32: Float32Array, uint32: Uint32Array, uint16: Uint16Array, uint8: Uint8Array };
 
-// Celdas del mapa de calor: [uint32 largo][JSON meta][arreglos]. Las matrices tienen forma
-// [tipo de día (2), hora (24), celda], así que la hora se elige y se anima aquí, sin volver al servidor.
-export async function cargarCeldas() {
-  const r = await pedir("/celdas" + consulta(estado.filtros));
-  const buf = await r.arrayBuffer();
+// Paquete binario de /vista (o /celdas): [uint32 largo][cabecera JSON][arreglos]. Las matrices del mapa
+// tienen forma [tipo de día (2), hora (24), celda], así que la hora se elige y se anima aquí, sin volver
+// al servidor. Devuelve la cabecera (con lo demás que traiga, ej. las listas de /vista) y las matrices.
+export function leerPaquete(buf) {
   const largo = new DataView(buf).getUint32(0, true);
-  const meta = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, largo)));
+  const cabecera = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, largo)));
   const base = 4 + largo, C = {};
-  for (const [k, v] of Object.entries(meta.indice)) C[k] = new TIPOS[v.tipo](buf, base + v.offset, v.len);
-  datos.META = meta; datos.C = C;  // juntos: nunca queda una cabecera de una respuesta con datos de otra
+  for (const [k, v] of Object.entries(cabecera.indice)) C[k] = new TIPOS[v.tipo](buf, base + v.offset, v.len);
+  return { cabecera, C };
 }
 
 // Suma las matrices según el tipo de día y la hora elegidos y arma las celdas visibles, más los totales

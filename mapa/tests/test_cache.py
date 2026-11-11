@@ -41,3 +41,22 @@ def test_dias_bus_solo_cuenta_registros_con_posicion(rutas):
     assert dias.filter(pl.col("recorrido") == "T303 00I").is_empty()
     cccc = dias.filter(pl.col("patente") == "CCCC33")
     assert cccc["recorrido"].to_list() == ["T202 00I"]
+
+
+def test_trayectos_un_archivo_por_dia_ordenado_por_recorrido(rutas):
+    carpeta = rutas.carpeta_cache(PERIODO) / "trayectos"
+    assert sorted(p.name for p in carpeta.iterdir()) == ["dia=2025-09-10.parquet", "dia=2025-09-13.parquet"]
+    df = pl.scan_parquet(carpeta / "dia=2025-09-10.parquet").collect()
+    assert df.columns == ["servicio", "sentido", "recorrido", "patente", "ts", "lon", "lat", "speed", "viaje"]
+    # Ordenado por recorrido: así, filtrar por servicio o recorrido se salta el resto del archivo
+    assert df.equals(df.sort("recorrido", "patente", "ts"))
+    assert "T303 00I" not in df["recorrido"]  # solo los registros con posición, igual que dias_bus
+    assert -72.0 in df["lon"]  # el punto fuera de la ciudad se queda (las celdas sí lo descartan)
+
+
+def test_tipicas_una_por_recorrido(rutas):
+    tipicas = pl.scan_parquet(rutas.carpeta_cache(PERIODO) / "tipicas.parquet").collect()
+    assert tipicas["recorrido"].is_unique().all()
+    # Todos los recorridos tienen la suya, menos T303 00I, que no tiene ningún punto con posición
+    assert set(tipicas["recorrido"]) == {"T101 00I", "T101 00R", "T202 00I", "T404 00I", "T505 00I", "T606 00I",
+                                         "T707 00R"}

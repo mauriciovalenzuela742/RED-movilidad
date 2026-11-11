@@ -2,8 +2,8 @@
 Consultas del mapa (Polars): mapa de calor por celda y hora, rankings, celdas por recorrido, trayectoria
 típica y trayectos de buses.
 
-Lee la caché que arma `mapa_red.cache` (no la construye). La trayectoria típica y los trayectos salen de
-los parquet diarios. Las reglas sobre los datos (servicio, sentido, día operativo) vienen de `esquema`.
+Todo sale de la caché que arma `mapa_red.cache`. Estas consultas no la construyen ni leen los parquet diarios,
+así que basta con la carpeta de la caché para servir la página.
 """
 
 from __future__ import annotations
@@ -11,33 +11,20 @@ from __future__ import annotations
 import datetime as dt
 import json
 import struct
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import polars as pl
 
 from .cache import VERSION as VERSION_CACHE
 from .config import Rutas
-from .esquema import (
-    CON_COORDENADAS,
-    DIMENSIONES,
-    PAUSA_NUEVO_VIAJE,
-    RECORRIDO,
-    SALTO_GPS,
-    SENTIDO,
-    SERVICIO,
-    SUMAS,
-    ZONA,
-    dia_operativo,
-    km_desde_anterior,
-    km_entre,
-)
+from .esquema import DIMENSIONES, SUMAS, ZONA
 
 MIN_OBS_GLOBAL = 50        # registros mínimos por celda en la vista sin filtros (limpia ruido)
 # En la vista por recorrido, el resto se agrupa como "Otros". 5 = los colores de la paleta categórica de la
 # página (js/colores.js, PALETA): en un mapa, con más de 5 siempre hay dos colores que se confunden
 MAX_RECORRIDOS_COLOR = 5
 MAX_PUNTOS_TRAYECTOS = 250_000  # tope para "todos los buses" (un recorrido-día ronda 15–60 mil puntos)
-EXTENSION_MIN_KM = 1.0     # trayectoria típica: bajo esto, el recorrido es un circuito (parte y termina igual)
 
 
 class ConsultaInvalida(ValueError):
@@ -46,13 +33,11 @@ class ConsultaInvalida(ValueError):
 
 
 class Cache:
-    """Caché de un período y los parquet diarios de donde sale. Guarda también las trayectorias típicas ya
-    calculadas (no cambian mientras la caché sea la misma)."""
+    """La caché de un período. Es lo único que leen las consultas."""
 
     def __init__(self, periodo: str, rutas: Rutas):
         self.periodo = periodo
         self.carpeta = rutas.carpeta_cache(periodo)
-        self.datos_local = rutas.datos_local
         comando = f"uv run mapa-cache {'--dia' if periodo.count('-') == 2 else '--mes'} {periodo}"
         if not (self.carpeta / "meta.json").exists():
             raise FileNotFoundError(f"No hay caché en {self.carpeta}. Constrúyela con: {comando}")
@@ -61,14 +46,17 @@ class Cache:
             raise FileNotFoundError(f"La caché de {self.carpeta} es de una versión anterior "
                                     f"({self.meta.get('version')}, se necesita {VERSION_CACHE}). Reconstrúyela con: {comando}")
         self.tam = self.meta["tam"]
-        self.tipicas: dict[str, dict | None] = {}
+        # Identifica esta construcción de la caché: las respuestas no cambian mientras sea la misma, así que
+        # la página la pone en la URL de /vista (?v=…) y el navegador (o CloudFront) puede guardarlas
+        self.identidad = str(int((self.carpeta / "meta.json").stat().st_mtime))
         self._grupo_de: dict[str, int] | None = None
 
     def grupo(self, patente: str) -> int | None:
-        """Archivo agg/grupo=NN donde está la patente (guardado al construir la caché)."""
+        """El archivo agg/grupo=NN donde está la patente (se guardó al construir la caché). La tabla se lee una
+        sola vez y queda en memoria, porque un mismo pedido la consulta varias veces."""
         if self._grupo_de is None:
-            self._grupo_de = dict(pl.read_parquet(self.carpeta / "ranking_patente.parquet",
-                                                  columns=["patente", "grupo"]).iter_rows())
+            self._grupo_de = dict(pl.scan_parquet(self.carpeta / "ranking_patente.parquet")
+                                  .select("patente", "grupo").collect().iter_rows())
         return self._grupo_de.get(patente)
 
     def agg(self, filtros: dict) -> pl.LazyFrame:
@@ -80,12 +68,13 @@ class Cache:
             lf = lf.filter(pl.col(dim) == valor)
         return lf
 
-    def archivos_dia(self, d0: dt.date) -> list[Path]:
-        """Parquet que cubren el día operativo `d0` (cae en las particiones UTC d0 y d0 + 1)."""
-        archivos = []
-        for d in (d0, d0 + dt.timedelta(days=1)):
-            archivos += sorted(self.datos_local.glob(f"year={d.year}/month={d.month:02d}/day={d.day:02d}/*.parquet"))
-        return archivos
+    def dias_bus(self) -> pl.LazyFrame:
+        """Cuántos registros con posición (`n`) tiene cada bus por día operativo y recorrido."""
+        return pl.scan_parquet(self.carpeta / "dias_bus.parquet")
+
+    def trayectos(self, d0: dt.date) -> Path:
+        """El archivo con los puntos GPS del día operativo `d0`."""
+        return self.carpeta / "trayectos" / f"dia={d0.isoformat()}.parquet"
 
 
 def fecha(dia: str) -> dt.date:
@@ -120,9 +109,11 @@ def entero_minimo(serie: pl.Series) -> pl.Series:
     return serie.cast(pl.UInt16 if (serie.max() or 0) <= 65_535 else pl.UInt32)
 
 
-def _paquete(cabecera: dict, arreglos: dict[str, pl.Series]) -> bytes:
+def _paquete(cabecera: dict, arreglos: dict[str, pl.Series], json_crudo: dict[str, str] | None = None) -> bytes:
     """[uint32 largo][cabecera JSON][arreglos alineados a 4 bytes], el formato que lee la página. Los bytes
-    de cada arreglo salen del búfer Arrow de la serie de Polars, sin pasar por listas de Python."""
+    de cada arreglo salen del búfer Arrow de la serie de Polars, sin pasar por listas de Python.
+    `json_crudo`: más campos para la cabecera, ya escritos como JSON (por Polars con `write_json()`): se
+    insertan tal cual, sin volver a pasar por diccionarios de Python."""
     partes, indice, offset = [], {}, 0
     for nombre, serie in arreglos.items():
         tipo, ancho = TIPOS_BINARIOS[str(serie.dtype)]
@@ -134,7 +125,10 @@ def _paquete(cabecera: dict, arreglos: dict[str, pl.Series]) -> bytes:
         indice[nombre] = {"offset": offset, "len": len(serie), "tipo": tipo}
         partes.append(datos)
         offset += len(datos)
-    meta = json.dumps({**cabecera, "indice": indice}).encode()
+    meta = json.dumps({**cabecera, "indice": indice})
+    if json_crudo:  # "{...}" → "{..., "clave": <json>, ...}"
+        meta = meta[:-1] + "".join(f",{json.dumps(k)}:{v}" for k, v in json_crudo.items()) + "}"
+    meta = meta.encode()
     meta += b" " * ((-(4 + len(meta))) % 4)
     return struct.pack("<I", len(meta)) + meta + b"".join(partes)
 
@@ -142,6 +136,11 @@ def _paquete(cabecera: dict, arreglos: dict[str, pl.Series]) -> bytes:
 def celdas(cache: Cache, filtros: dict) -> bytes:
     """Matrices [tipo de día (2), hora (24), celda] de registros, velocidad y velocidad comercial: con ellas
     la página elige y anima la hora sin volver a pedir datos."""
+    return _paquete(*_matrices_celdas(cache, filtros))
+
+
+def _matrices_celdas(cache: Cache, filtros: dict) -> tuple[dict, dict[str, pl.Series]]:
+    """Cabecera (celdas y buses) y matrices del mapa de calor, sin empaquetar."""
     if filtros:
         lf = cache.agg(filtros)
         planes = [lf.group_by("ix", "iy", "tipo_dia", "hora").agg(pl.col(SUMAS).sum()),
@@ -169,13 +168,13 @@ def celdas(cache: Cache, filtros: dict) -> bytes:
     def matriz(valores: pl.Series) -> pl.Series:
         return pl.zeros(n, dtype=valores.dtype, eager=True).scatter(m["idx"], valores)
 
-    return _paquete({"n_celdas": nc, "buses": int(buses.item())}, {
+    return {"n_celdas": nc, "buses": int(buses.item())}, {
         "lon": ids.select(((pl.col("ix") + 0.5) * cache.tam).cast(pl.Float32)).to_series(),
         "lat": ids.select(((pl.col("iy") + 0.5) * cache.tam).cast(pl.Float32)).to_series(),
         "n_total": matriz(entero_minimo(m["n_total"])), "n_mov": matriz(entero_minimo(m["n_mov"])),
         "vel": matriz(m["vel"].cast(pl.UInt8)), "vcom": matriz(m["vcom"].cast(pl.UInt8)),
         "scom": matriz(entero_minimo(m["scom"])),
-    })
+    }
 
 
 # ── Ranking y vista por recorrido ────────────────────────────────────────────
@@ -240,32 +239,13 @@ def por_recorrido(cache: Cache, filtros: dict) -> tuple[pl.DataFrame, pl.DataFra
     return leyenda, celdas_rec
 
 
-# ── Puntos GPS de un día operativo (trayectos y trayectoria típica) ──────────
-
-def _puntos_dia(cache: Cache, d0: dt.date) -> pl.LazyFrame | None:
-    """Puntos GPS con posición de todos los buses en un día operativo (04:00 a 04:00 local), con su
-    recorrido, servicio y sentido."""
-    archivos = cache.archivos_dia(d0)
-    if not archivos:
-        return None
-    return (pl.scan_parquet(archivos, hive_partitioning=False)
-            .filter((dia_operativo() == d0) & CON_COORDENADAS)
-            .select(plate="plate", ts="timestamp_gps_utc", lon="lon", lat="lat", speed="speed", recorrido=RECORRIDO)
-            .with_columns(servicio=SERVICIO, sentido=SENTIDO))
+def por_recorrido_json(cache: Cache, filtros: dict) -> str:
+    """`por_recorrido` como lo recibe la página: {"recorridos": leyenda, "celdas": celdas}."""
+    leyenda, celdas_rec = por_recorrido(cache, filtros)
+    return f'{{"recorridos":{leyenda.write_json()},"celdas":{celdas_rec.write_json()}}}'
 
 
-def _viaje(por_bus: bool = False) -> pl.Expr:
-    """Número de viaje de cada punto (ordenados por bus y hora): uno nuevo cuando cambia el recorrido,
-    hay más de 15 min sin señal, el GPS salta (el tramo implicaría más de SALTO_GPS km/h: sin este corte se
-    dibuja una recta que cruza la ciudad) o, con varios buses, cambia el bus."""
-    dt_s = pl.col("ts").diff().dt.total_seconds()
-    corte = ((pl.col("recorrido") != pl.col("recorrido").shift(1))
-             | (dt_s > PAUSA_NUEVO_VIAJE)
-             | (km_desde_anterior() * 3600 / dt_s.clip(lower_bound=1) > SALTO_GPS))
-    if por_bus:
-        corte = corte | (pl.col("plate") != pl.col("plate").shift(1))
-    return corte.fill_null(True).cum_sum().cast(pl.Int32) - 1
-
+# ── Trayectos: los puntos GPS de un día (cache/trayectos/) ───────────────────
 
 def _columnas_trayecto(d0: dt.date) -> list[pl.Expr]:
     """Columnas que recibe la página por punto: hora local, `t` = segundos desde la medianoche del día
@@ -285,7 +265,7 @@ def dias_bus(cache: Cache, patente: str | None, filtros: dict) -> pl.DataFrame:
     if not patente:
         _con_algun_filtro(filtros)
     cond = _condicion(filtros)
-    lf = pl.scan_parquet(cache.carpeta / "dias_bus.parquet")
+    lf = cache.dias_bus()
     if patente:
         lf = lf.filter(pl.col("patente") == patente)
     return (lf.group_by("dia").agg(n=pl.col("n").filter(pl.lit(True) if patente else cond).sum(),
@@ -298,101 +278,90 @@ def dias_bus(cache: Cache, patente: str | None, filtros: dict) -> pl.DataFrame:
 
 def trayecto(cache: Cache, patente: str, dia: str, filtros: dict | None = None) -> pl.DataFrame:
     """
-    Puntos GPS del bus en el día operativo, en orden: hora, `t`, lon / lat, km/h, recorrido y viaje. Con
-    filtros de servicio / sentido / recorrido, solo los puntos que calzan (los viajes se cortan antes de
-    filtrar, con el día completo del bus en orden).
+    Los puntos GPS del bus en el día operativo, en orden: hora, `t`, lon / lat, km/h, recorrido y viaje. Los
+    viajes vienen numerados desde la caché, con el día completo del bus. Con filtros de servicio, sentido o
+    recorrido, solo devuelve la parte del día que calza.
     """
     d0 = fecha(dia)
-    puntos = _puntos_dia(cache, d0)
-    if puntos is None:
+    # Primero se buscan en dias_bus los recorridos que hizo el bus ese día. Como el archivo del día está
+    # ordenado por recorrido, filtrar también por ellos permite leer solo los pedazos donde está el bus.
+    # Buscarlo solo por la patente obliga a recorrer el archivo entero (unas 6 veces más lento). La lista se
+    # trae a Python a propósito: con un join lazy, Polars no se salta ningún pedazo.
+    sus_recorridos = (cache.dias_bus()
+                      .filter((pl.col("patente") == patente) & (pl.col("dia") == d0) & _condicion(filtros or {}))
+                      .select("recorrido").collect().to_series().to_list())
+    if not sus_recorridos:
         return pl.DataFrame()
-    return (puntos
-            .filter(pl.col("plate") == patente)
+    return (pl.scan_parquet(cache.trayectos(d0))
+            .filter((pl.col("patente") == patente) & pl.col("recorrido").is_in(sus_recorridos))
             .sort("ts")
-            .with_columns(viaje=_viaje())
-            .filter(_condicion(filtros or {}))
             .select(*_columnas_trayecto(d0), "recorrido", "viaje")
             .collect())
 
 
 def trayectos(cache: Cache, filtros: dict, dia: str) -> pl.DataFrame:
     """
-    Todos los buses que hicieron el servicio / sentido / recorrido filtrado en el día operativo: sus puntos
-    en lo filtrado, ordenados por bus y hora, con las mismas columnas que `trayecto` más la patente. Los
-    viajes se cortan también al cambiar de bus.
+    Los puntos GPS de todos los buses que hicieron el servicio, sentido o recorrido filtrado ese día,
+    ordenados por bus y hora. Trae las mismas columnas que `trayecto` y además la patente. Los viajes son los
+    mismos de cada bus, pero renumerados para que ningún número se repita entre buses.
     """
     _con_algun_filtro(filtros)
     d0 = fecha(dia)
-    puntos = _puntos_dia(cache, d0)
-    if puntos is None:
+    cond = _condicion(filtros)
+    # dias_bus ya sabe cuántos puntos son, así que un pedido demasiado grande se rechaza sin leer nada
+    # (filtrando solo por sentido, un día tiene unos 7 millones)
+    n = cache.dias_bus().filter((pl.col("dia") == d0) & cond).select(pl.col("n").sum()).collect().item()
+    if n > MAX_PUNTOS_TRAYECTOS:
+        raise ConsultaInvalida(f"{n:,} puntos: demasiados para dibujar. Filtra por sentido o recorrido.")
+    if not n:
         return pl.DataFrame()
-    df = (puntos
-          .filter(_condicion(filtros))
-          .sort("plate", "ts")
-          .with_columns(viaje=_viaje(por_bus=True))
-          .select(*_columnas_trayecto(d0), "recorrido", patente="plate", viaje="viaje")
-          .collect())
-    if df.height > MAX_PUNTOS_TRAYECTOS:
-        raise ConsultaInvalida(f"{df.height:,} puntos: demasiados para dibujar. Filtra por sentido o recorrido.")
-    return df
+    otro_viaje = (pl.col("patente") != pl.col("patente").shift(1)) | (pl.col("viaje") != pl.col("viaje").shift(1))
+    return (pl.scan_parquet(cache.trayectos(d0))
+            .filter(cond)
+            .sort("patente", "ts")
+            .select(*_columnas_trayecto(d0), "recorrido", "patente",
+                    viaje=otro_viaje.fill_null(True).cum_sum().cast(pl.Int32) - 1)
+            .collect())
 
 
-# ── Trayectoria típica de cada recorrido ─────────────────────────────────────
-
-def trayectoria_tipica(cache: Cache, recorrido: str) -> dict | None:
-    """
-    Un viaje real y representativo del recorrido, para dibujarlo unido como línea: se elige un bus-día
-    con registros cercanos a la mediana del recorrido y, de sus viajes de ese recorrido, el que va más lejos
-    de punta a punta (de terminal a terminal). No el de más puntos: ese suele ser una ida y vuelta con el
-    letrero sin cambiar, o un viaje con una larga espera. En un circuito (parte y termina en el mismo lugar)
-    todos van ~0 km de punta a punta, y ahí sí se elige el de más puntos.
-    Un viaje nuevo empieza cuando cambia el recorrido asignado, hay más de 15 min sin señal o el GPS salta.
-    """
-    if recorrido in cache.tipicas:
-        return cache.tipicas[recorrido]
-    candidatos = (pl.scan_parquet(cache.carpeta / "dias_bus.parquet")
-                  .filter((pl.col("recorrido") == recorrido) & (pl.col("n") >= 20))
-                  .with_columns(dist=(pl.col("n") - pl.col("n").median()).abs())
-                  .sort("dist").head(3).select("patente", "dia").collect())
-    hora = lambda c: pl.col(c).dt.convert_time_zone(ZONA).dt.strftime("%H:%M")  # noqa: E731
-    resultado = None
-    for patente, d0 in candidatos.iter_rows():
-        puntos = _puntos_dia(cache, d0)
-        if puntos is None:
-            continue
-        mejor = (puntos
-                 .filter(pl.col("plate") == patente)
-                 .sort("ts")
-                 .with_columns(viaje=_viaje())
-                 .filter(pl.col("recorrido") == recorrido)
-                 .group_by("viaje")
-                 .agg(n=pl.len(), inicio=pl.col("ts").first(), fin=pl.col("ts").last(),
-                      extension=km_entre(pl.col("lon").first(), pl.col("lat").first(),
-                                         pl.col("lon").last(), pl.col("lat").last()),
-                      camino=pl.concat_list(pl.col("lon").cast(pl.Float64).round(5),
-                                            pl.col("lat").cast(pl.Float64).round(5)))
-                 .filter(pl.col("n") >= 10)
-                 .sort(pl.when(pl.col("extension").max() >= EXTENSION_MIN_KM).then(pl.col("extension"))
-                       .otherwise(pl.col("n").cast(pl.Float64)), "n", descending=True)
-                 .head(1)
-                 .select(pl.lit(recorrido).alias("recorrido"), pl.lit(patente).alias("patente"),
-                         pl.lit(d0.isoformat()).alias("dia"), hora("inicio").alias("inicio"),
-                         hora("fin").alias("fin"), "n", "camino")
-                 .collect())
-        if mejor.height:
-            resultado = mejor.row(0, named=True)
-            break  # con el primer bus-día que tenga un viaje basta
-    cache.tipicas[recorrido] = resultado
-    return resultado
-
+# ── Trayectoria típica (ya elegida al construir la caché) ────────────────────
 
 def tipicas(cache: Cache, filtros: dict) -> pl.DataFrame:
-    """Trayectoria típica de los recorridos que se ven en la vista Recorridos (los 5 con más registros)."""
+    """La trayectoria típica (un viaje real) de los recorridos que se ven en la vista Recorridos, que son los 5
+    con más registros. Ya vienen elegidas en la caché: aquí solo se buscan."""
     if not filtros:
         raise ConsultaInvalida("La trayectoria típica requiere al menos un filtro")
-    principales = (_resumen_por_recorrido(cache, filtros).head(MAX_RECORRIDOS_COLOR)
-                   .select("id").collect()["id"].to_list())
-    filas = [t for t in (trayectoria_tipica(cache, r) for r in principales) if t]
-    return pl.DataFrame(filas, schema={"recorrido": pl.String, "patente": pl.String, "dia": pl.String,
-                                       "inicio": pl.String, "fin": pl.String, "n": pl.UInt32,
-                                       "camino": pl.List(pl.List(pl.Float64))})
+    principales = _resumen_por_recorrido(cache, filtros).head(MAX_RECORRIDOS_COLOR).select(recorrido="id")
+    return (pl.scan_parquet(cache.carpeta / "tipicas.parquet")
+            .join(principales, on="recorrido", how="semi")
+            .collect())
+
+
+# ── Vista: todo lo que cambia con los filtros, en una respuesta ──────────────
+
+def vista(cache: Cache, filtros: dict, con_dias: bool = False) -> bytes:
+    """
+    Todo lo que la página necesita al cambiar los filtros, en una sola respuesta (en Lambda: un solo
+    arranque en frío y una sola invocación, en vez de una por pedido): el paquete binario del mapa de calor
+    (`celdas`) con, en su cabecera, `listas` (métricas por servicio, sentido, recorrido y patente: los
+    desplegables y el ranking), `por_recorrido` (con algún filtro) y `dias` (con `con_dias`).
+
+    Son las mismas consultas de los endpoints por separado, en paralelo: Polars suelta el GIL mientras
+    consulta, así que los hilos se superponen (y en S3, sus esperas por la red también).
+    """
+    tareas = {"celdas": lambda: _matrices_celdas(cache, filtros)}
+    for g in DIMENSIONES:
+        tareas[g] = lambda g=g: ranking(cache, g, filtros).write_json()
+    if filtros:
+        tareas["por_recorrido"] = lambda: por_recorrido_json(cache, filtros)
+    if con_dias:
+        tareas["dias"] = lambda: dias_bus(cache, filtros.get("patente"), filtros).write_json()
+    with ThreadPoolExecutor(max_workers=len(tareas)) as hilos:
+        en_curso = {nombre: hilos.submit(tarea) for nombre, tarea in tareas.items()}
+        r = {nombre: f.result() for nombre, f in en_curso.items()}  # un error en una tarea sube tal cual
+    cabecera, matrices = r["celdas"]
+    return _paquete(cabecera, matrices, {
+        "listas": "{" + ",".join(f'"{g}":{r[g]}' for g in DIMENSIONES) + "}",
+        "por_recorrido": r.get("por_recorrido", "null"),
+        "dias": r.get("dias", "null"),
+    })

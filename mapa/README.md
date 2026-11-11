@@ -41,7 +41,7 @@ mapa-velocidad-red/
 │   ├── esquema.py         reglas sobre los datos que comparten caché y consultas: servicio, sentido,
 │   │                      día operativo (una sola fuente)
 │   ├── cache.py           construcción de la caché desde los parquet diarios (comando mapa-cache)
-│   ├── consultas.py       consultas en Polars sobre la caché y los parquet diarios
+│   ├── consultas.py       consultas en Polars sobre la caché (no leen los parquet diarios)
 │   ├── api.py             API FastAPI y la página (comando mapa-api)
 │   └── static/
 │       ├── index.html     la página
@@ -56,7 +56,8 @@ mapa-velocidad-red/
 
 No vienen en el repo. Hacen falta los parquet diarios de posiciones de buses RED en
 `datos_local/year=YYYY/month=MM/day=DD/*.parquet`, con las columnas `timestamp_gps_utc`, `plate`,
-`bus_route_assigned`, `operator_name`, `operator_number`, `speed`, `lon` y `lat`.
+`bus_route_assigned`, `operator_name`, `operator_number`, `speed`, `lon` y `lat`. Solo los lee `mapa-cache`:
+la API sirve todo (también los trayectos) desde la carpeta de la caché, y es lo único que hay que desplegar.
 
 **Descargarlos**: `demo.ipynb` se conecta al Datopia Lakehouse (Data Observatory) con credenciales
 temporales de S3 y descarga un mes a `datos_local/` (celda "Descarga completa a Parquet local"), además de
@@ -77,10 +78,34 @@ uv run mapa-cache --mes 2025-09
 uv run mapa-api --periodo 2025-09
 ```
 
-Las rutas se pueden cambiar con las variables de entorno `DATOS_LOCAL` (parquet diarios; por defecto
-`datos_local/`), `CACHE_BASE` (carpeta que contiene `cache_polars_<periodo>/`; por defecto la raíz del repo)
+Las rutas se pueden cambiar con las variables de entorno `DATOS_LOCAL` (parquet diarios, solo para construir
+la caché; por defecto `datos_local/`), `CACHE_BASE` (carpeta que contiene `cache_polars_<periodo>/`; por
+defecto la raíz del repo)
 y `PERIODO` (el que sirve la API si no se da `--periodo`). En un servidor basta con las dependencias de la
 app: `uv sync --no-default-groups`.
+
+## La caché
+
+`mapa-cache` arma `cache_polars_<periodo>/` desde los parquet diarios:
+
+| Archivo | Una fila es | Lo usan |
+|---|---|---|
+| `agg/grupo=NN.parquet` | celda de ~100 m × recorrido × bus × hora × tipo de día, con sumas para las métricas | mapa de calor, rankings, Recorridos |
+| `celdas_global.parquet` | lo mismo sin recorrido ni bus | la vista sin filtros |
+| `ranking_<dim>.parquet` | un servicio, sentido, recorrido o bus, con sus sumas | rankings y listas de los filtros |
+| `dias_bus.parquet` | bus × día operativo × recorrido, con sus registros con posición | días con datos; recorridos de un bus en un día |
+| `trayectos/dia=AAAA-MM-DD.parquet` | un punto GPS con posición, con su número de viaje | Trayecto (un bus o todos los de un recorrido) |
+| `tipicas.parquet` | un recorrido, con su trayectoria típica | la línea de Calor y Recorridos |
+| `meta.json` | — | versión, tamaño de celda y días por tipo |
+
+Los trayectos van ordenados por recorrido, bus y hora, en pedazos (row groups) de 20 000 filas. Así, al
+filtrar por servicio o recorrido se leen solo los pedazos que lo tienen, y para encontrar un bus se usan sus
+recorridos de ese día, que están en `dias_bus`. Se escriben con pyarrow en vez de Polars porque permite elegir
+la codificación de cada columna, y con eso pesan la mitad: unos 53 MB por día en septiembre de 2025.
+
+Todo se lee en modo lazy (`scan_parquet`), y los datos se traen a memoria con `collect` solo cuando hace
+falta, casi siempre al final de cada consulta. `sink_parquet` aparece solo al construir la caché, para escribir
+cada archivo sin juntarlo entero en memoria.
 
 ## Desarrollo
 
@@ -91,13 +116,20 @@ uv run ruff check src tests
 
 ## Formato de las respuestas
 
+- `/vista`: lo que pide la página al cambiar los filtros, en **una** respuesta. Es el mismo binario de
+  `/celdas` y, en su cabecera, las listas de los filtros con sus métricas (también el ranking), la vista por
+  recorrido y, con `dias=1`, los días con datos. Antes eran hasta 7 pedidos por cambio de filtro: en Lambda
+  cada uno podía ser un arranque en frío. Con `v` igual a la caché vigente (la página la toma de
+  `config.js`), la respuesta se puede guardar en el navegador o en CloudFront, porque no cambia hasta que se
+  reconstruye la caché. Los demás endpoints (`/celdas`, `/ranking`, `/por_recorrido`, `/dias`) siguen
+  devolviendo cada parte por separado.
 - `/celdas`: binario `[uint32 largo][cabecera JSON][arreglos]` con las matrices `[tipo de día, hora, celda]`,
   armado con Polars (sin numpy). La página elige y anima la hora sin volver a pedir datos. Los conteos van
   como UInt16 y pasan a UInt32 solo si alguno no cabe (una celda de terminal llega a ~95 000 registros por hora
   en un mes).
 - `/ranking`, `/por_recorrido`, `/tipicas`, `/dias`, `/trayecto` y `/trayectos`: JSON escrito por Polars
   (`df.write_json()`, desde Rust), 5–8 veces más rápido que convertir a diccionarios y usar `JSONResponse`.
-- Lo que no depende de filtros (vista global y rankings completos) se calcula una vez al arrancar.
+- La vista sin filtros se calcula y comprime una vez al arrancar.
 - Un pedido que no se puede responder (filtro faltante, día mal escrito) devuelve 400 con
   `{"detail": "…"}`; la página muestra ese mensaje con un botón para reintentar.
 
@@ -108,8 +140,8 @@ salta (el tramo implicaría más de 120 km/h; en un día típico hay ~4 500 salt
 **Trayectoria típica**: un viaje real y representativo de cada recorrido. Se elige un bus-día con registros
 cercanos a la mediana del recorrido y, de sus viajes de ese recorrido, el que va más lejos de punta a punta
 (de terminal a terminal). No el de más puntos: ese suele ser una ida y vuelta con el letrero sin cambiar. En
-un circuito (parte y termina en el mismo lugar) se elige el de más puntos. Se calcula la primera vez que se
-pide y queda guardada mientras la API esté arriba.
+un circuito (parte y termina en el mismo lugar) se elige el de más puntos. Se elige una por recorrido al
+construir la caché (`tipicas.parquet`).
 
 **Datos verificados** (septiembre de 2025): particiones por fecha UTC, sin registros duplicados, un registro
 cada 30 s por bus y `speed` en km/h instantánea (coincide con la velocidad calculada por posición). Como el

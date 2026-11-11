@@ -1,9 +1,9 @@
 """
-Reglas sobre los datos que comparten la construcción de la caché y las consultas.
+Reglas sobre los datos que usan todas las partes de la caché (celdas, días por bus y trayectos).
 
-Viven en un solo lugar a propósito: si la caché y las consultas sobre los parquet diarios derivaran
-servicio, sentido o día operativo de forma distinta, la API ofrecería días o recorridos que después no
-encuentra (ej. `/dias` lista un día y `/trayecto` lo devuelve vacío).
+Están en un solo lugar a propósito. Si cada parte sacara el servicio, el sentido o el día operativo a su
+manera, la API ofrecería días o recorridos que después no encuentra (por ejemplo, `/dias` muestra un día y
+`/trayecto` lo devuelve vacío).
 
 Formato de `bus_route_assigned` = SERVICIO [VARIANTE] NN+SENTIDO, ej. "T504 00I", "T550 C0 00R":
     servicio = "T504" · sentido = I (ida) / R (regreso) · recorrido = el código completo.
@@ -61,6 +61,25 @@ def km_desde_anterior(por: str | None = None) -> pl.Expr:
     if por:
         lon_ant, lat_ant = lon_ant.over(por), lat_ant.over(por)
     return km_entre(lon_ant, lat_ant, pl.col("lon"), pl.col("lat"))
+
+
+def viaje() -> pl.Expr:
+    """
+    Numera los viajes de cada bus, partiendo de 0.
+
+    Un viaje termina, y empieza el siguiente, cuando el bus cambia de recorrido, cuando pasa más de 15 minutos
+    sin señal o cuando el GPS salta (para llegar al punto siguiente habría que ir a más de 120 km/h). Sin ese
+    último corte, cada salto se dibujaría como una recta que cruza la ciudad.
+
+    Necesita las columnas `patente`, `ts`, `recorrido`, `lon` y `lat`, con los puntos de cada bus en orden de
+    hora.
+    """
+    segundos = pl.col("ts").diff().dt.total_seconds()
+    cambia_de_recorrido = pl.col("recorrido") != pl.col("recorrido").shift(1)
+    sin_senal = segundos > PAUSA_NUEVO_VIAJE
+    salto_del_gps = km_desde_anterior() * 3600 / segundos.clip(lower_bound=1) > SALTO_GPS
+    empieza_viaje = (cambia_de_recorrido | sin_senal | salto_del_gps).fill_null(True)  # el primer punto también
+    return (empieza_viaje.cum_sum().cast(pl.Int32) - 1).over("patente")
 
 
 def hora_local(ts: str = "timestamp_gps_utc") -> pl.Expr:

@@ -10,14 +10,14 @@ de la interfaz van en español; los nombres de funciones y variables también.
 
 ```bash
 uv sync                                   # todo: app + dev (pytest, ruff, httpx) + notebook
-uv run mapa-cache --mes 2025-09           # construye cache_polars_2025-09/ (~4 min con un mes); --dia, --rehacer
+uv run mapa-cache --mes 2025-09           # construye cache_polars_2025-09/ (~10 min y ~1,8 GB con un mes); --dia, --rehacer
 uv run mapa-api --periodo 2025-09         # http://127.0.0.1:8900 (--puerto para otro)
 uv run pytest                             # ~2 s, datos sintéticos: no necesita datos_local/
 uv run pytest tests/test_consultas.py::test_trayecto_completo_y_filtrado
 uv run ruff check src tests               # --fix ordena los imports
 ```
 
-- Variables de entorno: `DATOS_LOCAL` (parquet diarios, por defecto `datos_local/`), `CACHE_BASE` (carpeta
+- Variables de entorno: `DATOS_LOCAL` (parquet diarios, solo para `mapa-cache`; por defecto `datos_local/`), `CACHE_BASE` (carpeta
   que contiene `cache_polars_<periodo>/`, por defecto la raíz) y `PERIODO`.
 - Si `mapa-api` falla con `[Errno 10048]`, ya hay otro servidor en el puerto 8900.
 - Los datos no están en el repo: `demo.ipynb` los descarga del Datopia Lakehouse a
@@ -36,41 +36,65 @@ uv run ruff check src tests               # --fix ordena los imports
 
 ## Arquitectura
 
-### Dos fuentes de datos, unas mismas reglas
+### La caché es la única fuente de la API
 
-- **Caché** (`cache.py`, sale de `mapa-cache`): agregados por celda de ~100 m × recorrido × patente × hora ×
-  tipo de día. La usan el mapa de calor, los rankings, la vista Recorridos y la lista de días por bus. Se
-  construye en 16 grupos por hash de patente (memoria acotada) y queda en `agg/grupo=NN.parquet`, ordenada
-  por recorrido para que filtrar por servicio o recorrido salte row groups. Al filtrar por bus,
-  `Cache.agg` lee solo el archivo de su grupo (~7× más rápido); el grupo de cada patente se guarda en
-  `ranking_patente.parquet` al construir, porque `Expr.hash` no es estable entre versiones de Polars.
-- **Parquet diarios crudos**: los usan los trayectos (`/trayecto`, `/trayectos`) y la trayectoria típica,
-  que necesitan los puntos GPS en orden.
-- `esquema.py` es la única definición de las reglas que ambas comparten: servicio y sentido desde
+`mapa-cache` (`cache.py`) lee los parquet diarios crudos y arma `cache_polars_<periodo>/`. La API lee solo esa
+carpeta, así que los crudos no se despliegan (un test copia la carpeta sola a otro lugar y sirve todo desde
+ahí). Las lecturas van siempre con `scan_parquet`, y `collect` solo cuando hace falta (casi siempre al final);
+`sink_parquet` se usa solo al construir la caché.
+
+- **Celdas** (`agg/grupo=NN.parquet`): agregados por celda de ~100 m × recorrido × patente × hora × tipo de
+  día. Los usan el mapa de calor, los rankings y la vista Recorridos. Se construyen en 16 grupos por hash de
+  patente (memoria acotada), ordenados por recorrido para que filtrar por servicio o recorrido salte row
+  groups. Al filtrar por bus, `Cache.agg` lee solo el archivo de su grupo (~7× más rápido); el grupo de cada
+  patente se guarda en `ranking_patente.parquet` al construir, porque `Expr.hash` no es estable entre
+  versiones de Polars.
+- **Trayectos** (`trayectos/dia=AAAA-MM-DD.parquet`, ~53 MB por día): los puntos GPS con posición de cada día
+  operativo. Cada punto trae su número de viaje, calculado con el día completo del bus. Van ordenados por
+  recorrido, bus y hora, en row groups de 20 000 filas. Los usan `/trayecto` y `/trayectos`.
+  - Para un bus, `consultas.trayecto` busca primero en `dias_bus` qué recorridos hizo ese día y filtra también
+    por ellos. Así Polars se salta los row groups donde el bus no está (buscarlo solo por patente recorre el
+    archivo entero, ~6× más lento). La lista se trae a Python a propósito: con un semi-join lazy no se salta
+    ninguno.
+  - `/trayectos` sabe por `dias_bus` cuántos puntos son, y rechaza los pedidos enormes sin leerlos.
+  - Se escriben con pyarrow (BYTE_STREAM_SPLIT y DELTA_BINARY_PACKED), porque `sink_parquet` no deja elegir la
+    codificación de cada columna: pesan la mitad y Polars los lee igual de rápido.
+- **`dias_bus.parquet`** (bus × día operativo × recorrido): la lista de días, los recorridos de un bus en un
+  día y los candidatos a trayectoria típica. Cuenta exactamente los puntos de `trayectos/` (un test lo
+  comprueba); si no, `/dias` ofrecería días que `/trayecto` devuelve vacíos.
+- **`tipicas.parquet`**: la trayectoria típica de cada recorrido. Se elige al construir la caché, aprovechando
+  que el día de cada candidato ya está en memoria para escribir sus trayectos.
+- `esquema.py` es la única definición de las reglas que comparten todas las salidas: servicio y sentido desde
   `bus_route_assigned` (`"T550 C0 00R"` → `T550`, `R`), día operativo de **04:00 a 04:00 hora local**
-  (abarca dos particiones UTC: `Cache.archivos_dia`), qué registros cuentan (`CON_COORDENADAS`) y qué es un
-  salto de GPS (`SALTO_GPS`, 120 km/h: no cuenta para la velocidad comercial y corta los viajes). Si estas
-  reglas difieren entre la caché y las consultas, `/dias` ofrece días que `/trayecto` devuelve vacíos. No hay
-  que duplicarlas.
+  (abarca dos particiones UTC: `cache.puntos_dia` filtra ese rango, si no leería el mes por cada día), qué
+  registros cuentan (`CON_COORDENADAS`), qué es un salto de GPS (`SALTO_GPS`, 120 km/h: no cuenta para la
+  velocidad comercial y corta los viajes) y qué es un viaje (`viaje()`). No hay que duplicarlas.
 - Si cambia lo que escribe la caché, hay que subir `cache.VERSION`: `mapa-cache` reconstruye solo cuando la
   versión de `meta.json` no coincide, y la API se niega a arrancar con una caché de otra versión (con el
   comando para reconstruirla en el mensaje).
 
 ### API (`api.py`, `consultas.py`)
 
-- `crear_app(periodo, rutas)` es una fábrica sin estado global. Al arrancar (lifespan) carga la `Cache` y
-  precalcula lo que no depende de filtros (vista global, rankings completos, `/config.js`) en `app.state`.
-  Los tests la instancian con rutas temporales.
+- `crear_app(periodo, rutas)` es una fábrica sin estado global. Al arrancar (lifespan) carga la `Cache`,
+  calcula y comprime la vista sin filtros y arma `/config.js` en `app.state`. Los tests la instancian con
+  rutas temporales.
+- **`/vista` es lo que pide la página al cambiar los filtros**: una sola respuesta (en Lambda, una sola
+  invocación y un solo arranque en frío) con el paquete binario del mapa y, en su cabecera, `listas` (una por
+  dimensión: los desplegables y el ranking), `por_recorrido` y, con `dias=1`, `dias`. `consultas.vista` corre
+  las mismas funciones de los endpoints por separado en hilos (Polars suelta el GIL), y un test comprueba que
+  devuelve lo mismo que ellos. Con `v` igual a `Cache.identidad` (va en `config.js`), la respuesta lleva
+  `Cache-Control: immutable`: mientras la caché sea la misma, el navegador o CloudFront la guardan. El trayecto
+  y las trayectorias típicas siguen aparte, porque dependen del día elegido o llegan después.
 - Respuestas: `/celdas` es binario `[uint32 largo][cabecera JSON][arreglos alineados a 4 bytes]`, con
   matrices `[tipo de día (2), hora (24), celda]` que salen del búfer Arrow de Polars (sin numpy). El
   navegador las lee como TypedArrays y elige o anima la hora sin volver a pedir datos. El resto es JSON
   escrito por Polars (`df.write_json()`), no por diccionarios ni `JSONResponse`, que es 5–8× más lento.
   Cada arreglo de `/celdas` declara su tipo (`consultas.TIPOS_BINARIOS`), y `js/calor.js` debe conocerlos
-  todos; un test lo comprueba. La vista global (~14 MB) se comprime con gzip una vez al arrancar: comprimirla
-  por pedido con el nivel 9 por defecto de `GZipMiddleware` tardaba 16 s.
+  todos; un test lo comprueba. La vista sin filtros (~14 MB) se comprime con gzip una vez al arrancar:
+  comprimirla por pedido con el nivel 9 por defecto de `GZipMiddleware` tardaba 16 s.
 - Los errores de entrada del usuario se lanzan como `ConsultaInvalida`, que un solo manejador convierte en
   400 `{"detail": ...}`. Un `ValueError` común sigue siendo 500.
-- Las trayectorias típicas se guardan en `Cache.tipicas` la primera vez que se piden.
+- Las trayectorias típicas llegan ya elegidas en `tipicas.parquet`: `/tipicas` solo filtra los recorridos.
 
 ### Página (`static/`)
 
@@ -82,7 +106,8 @@ uv run ruff check src tests               # --fix ordena los imports
   importan en ciclo (panel ↔ tipicas ↔ capas…), lo que funciona porque solo se llaman entre sí dentro de
   funciones, nunca al evaluarse.
 - Dos caminos de actualización:
-  - `filtros.aplicarFiltros()` consulta al servidor (celdas, listas, por_recorrido, días) y después redibuja.
+  - `filtros.aplicarFiltros()` hace un solo pedido a `/vista` (y, en Trayecto, otro por los puntos del día) y
+    después redibuja. Numera cada aplicación y descarta las respuestas de una anterior que lleguen tarde.
   - `panel.refrescar()` redibuja con lo ya cargado: métrica, hora, tipo de día. Corre en cada cuadro de
     animación, así que no debe pedir nada. Termina en `guardarUrl()`, que escribe la URL con retardo
     porque los navegadores limitan `history.replaceState`.
@@ -107,7 +132,7 @@ uv run ruff check src tests               # --fix ordena los imports
 
 ### Tests
 
-`tests/conftest.py` genera parquet sintéticos con el esquema real (dos días, seis buses: un recorrido sin
-posición, un punto fuera de Santiago, un salto de GPS y una ida y vuelta con el letrero sin cambiar) y
+`tests/conftest.py` genera parquet sintéticos con el esquema real (dos días, siete buses: un recorrido sin
+posición, un punto fuera de Santiago, un salto de GPS, una ida y vuelta con el letrero sin cambiar y un circuito) y
 construye una caché real una vez por sesión. Las horas se escriben en local y se pasan a UTC con +3 (Chile
 en septiembre).
