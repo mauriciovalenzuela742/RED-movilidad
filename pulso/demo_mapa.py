@@ -6,7 +6,7 @@ No son datos reales. Cada bus recorre el trazado real de su servicio (GTFS vigen
 con las salidas que dan las frecuencias del GTFS y los tiempos de viaje entre paraderos de su
 `stop_times.txt`, más ruido aleatorio en la velocidad (semilla fija). Sirve para ver el mapa de calor y la
 reproducción de trayectos funcionando; las velocidades que muestra son las del itinerario planificado, no
-las observadas. Las patentes son `DEMO-NNNN` y el operador "SIMULADO (GTFS)".
+las observadas. Las patentes son ficticias con formato chileno ("BJFV-17") y el operador "SIMULADO (GTFS)".
 
 Escribe `mapa/datos_demo/year=YYYY/month=MM/day=DD/datos-N.parquet` (particiones UTC, el mismo esquema que
 `pulso.descarga_mapa`), separado de `mapa/datos_local/` para no mezclarlo nunca con datos reales.
@@ -35,6 +35,22 @@ ESQUEMA = pa.schema([("timestamp_gps_utc", pa.timestamp("us")), ("plate", pa.str
                      ("bus_route_assigned", pa.string()), ("operator_name", pa.string()),
                      ("operator_number", pa.int32()), ("speed", pa.float32()),
                      ("lon", pa.float64()), ("lat", pa.float64())])
+
+
+_LETRAS = "BCDFGHJKLPRSTVWXYZ"  # consonantes de las patentes chilenas actuales
+_N_PATENTES = len(_LETRAS) ** 4 * 100
+
+
+def patente_ficticia(n: int) -> str:
+    """Patente FICTICIA con el formato del lakehouse ("BJFV-17"), única para cada n (biyección: 7919 es primo
+    con el total de combinaciones). Puede coincidir por azar con una patente real: los datos son simulados."""
+    k = (n * 7919 + 104_729) % _N_PATENTES
+    k, num = divmod(k, 100)
+    letras = ""
+    for _ in range(4):
+        k, i = divmod(k, len(_LETRAS))
+        letras += _LETRAS[i]
+    return f"{letras}-{num:02d}"
 
 
 def _seg(hhmmss: pd.Series) -> np.ndarray:
@@ -114,7 +130,7 @@ def simular_dia(dia: date, trips, freq, st, shapes, rng) -> pd.DataFrame:
             _, patente = cola.pop(0)
         else:
             n_buses += 1
-            patente = f"DEMO-{n_buses:04d}"
+            patente = patente_ficticia(n_buses)
         t_vert, dist, lon, lat = perfiles[tid]
         t_v = t_vert * rng.uniform(0.85, 1.15)  # tráfico de ese viaje
         ts = np.arange(0, t_v[-1], CADA_S, dtype=float)

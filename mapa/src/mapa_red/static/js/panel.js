@@ -59,7 +59,7 @@ function leyendaTrayecto() {
   if (tray.varios) {
     $("trayResumen").textContent = tray.pts.length
       ? `${fmt(tray.buses.length, 0)} buses hicieron ${nombreFiltro()} ese día, en ${fmt(tray.viajes.length, 0)} viajes ` +
-        `(${fmt(tray.pts.length, 0)} puntos GPS). En la reproducción, cada punto negro es un bus en marcha, con su ` +
+        `(${fmt(tray.pts.length, 0)} puntos GPS). En la reproducción, cada micro es un bus en marcha, con su número de recorrido y ` +
         "patente. Pasa el mouse por un bus (en el mapa o en la lista) para resaltar su trayecto; clic para verlo solo."
       : "Sin puntos para lo filtrado ese día.";
     $("trayBuses").innerHTML = tray.buses.length ? `<h3 class="sub" style="margin:12px 0 0">Buses (${fmt(tray.buses.length, 0)})</h3>
@@ -74,7 +74,7 @@ function leyendaTrayecto() {
   $("trayResumen").textContent = tray.pts.length
     ? `${fmt(tray.pts.length, 0)} puntos GPS${parte ? ` de ${parte}` : ""} en ${fmt(tray.viajes.length, 0)} viajes` +
       `${parte ? " (quita el filtro para ver el día completo del bus)" : ""}. ` +
-      "En la reproducción, el punto negro es el bus."
+      "En la reproducción, la micro es el bus, con su número de recorrido encima."
     : `Sin puntos${parte ? ` de ${parte}` : ""} para este bus y día.`;
 }
 

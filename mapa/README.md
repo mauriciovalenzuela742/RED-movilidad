@@ -10,7 +10,7 @@ con las consultas en Polars, y una página estática con deck.gl y MapLibre.
   "Otros"), con su trayectoria típica como línea (requiere filtrar por servicio, sentido, recorrido o bus).
 - **Trayecto**, con una barra de reproducción al pie del mapa: ▶ (o la barra espaciadora), línea de tiempo,
   velocidad (1 min a 2 h del día por segundo) y "día completo". Al reproducir, el día completo queda en
-  gris, lo recorrido en color, los últimos 20 min más marcados y cada bus en marcha como punto negro con su
+  gris, lo recorrido en color, los últimos 20 min más marcados y cada bus en marcha como una micro con su número de recorrido y su
   patente (se puede ocultar; las que se taparían se omiten hasta acercar el mapa). Se reproduce en el
   navegador, sin volver a pedir datos. Las líneas se colorean por **velocidad** (la misma escala del mapa de
   calor) o por **recorrido**; nunca por bus, porque con decenas de buses los colores se repetirían. Cada bus

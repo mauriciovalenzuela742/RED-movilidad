@@ -154,12 +154,7 @@ export function capasTrayecto() {
     const actual = enMarcha(t);
     // Seleccionable: son puntos GPS (interpolados), así que comparten tooltip y, con varios buses, el clic
     // para ver solo ese bus
-    capas.push(new deck.ScatterplotLayer({
-      id: "tray-bus", data: actual, getPosition: posicion, getFillColor: [0, 0, 0],
-      getRadius: tray.varios ? 6 : 10, radiusUnits: "pixels", stroked: true, getLineColor: [255, 255, 255],
-      lineWidthMinPixels: tray.varios ? 2 : 3,
-      pickable: true, autoHighlight: true, highlightColor: [227, 73, 72, 255],
-    }));
+    capas.push(...capasMicro(actual));
     if (tray.etiquetas) capas.push(capaEtiquetas(actual));
   }
   return capas;
@@ -193,8 +188,53 @@ function enMarcha(t) {
   return actual;
 }
 
-// Patente de cada bus en marcha, sobre su punto negro
-const ETIQUETA = { alto: 18, anchoCaracter: 7.5, relleno: 10, separacion: { uno: 20, varios: 15 } };
+// ── Cada bus en marcha: una micro vista de lado (blanca, con borde y franja rojos y ruedas negras) con su
+// número de recorrido sobre la carrocería, como en las apps de transporte. Dibujo propio en SVG (no es el
+// ícono de ninguna app). La patente va en una etiqueta encima (capaEtiquetas) y en el tooltip.
+const ROJO = "#CF152D", TINTA = "#1d1d1b";
+const MICRO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="60" viewBox="0 0 120 60">
+<path d="M9 5H103Q114 5 115.5 16L116.5 40Q116.5 45 111 45H9Q4 45 4 40V10Q4 5 9 5Z" fill="#fff" stroke="${ROJO}" stroke-width="4"/>
+<path d="M105 7.5Q112.5 8.5 113.5 17L114 30H105Z" fill="${ROJO}"/>
+<rect x="6" y="36" width="108" height="7.5" rx="2.5" fill="${ROJO}"/>
+<circle cx="29" cy="46" r="8.5" fill="${TINTA}" stroke="#fff" stroke-width="2.5"/>
+<circle cx="90" cy="46" r="8.5" fill="${TINTA}" stroke="#fff" stroke-width="2.5"/>
+</svg>`;
+// Alto del ícono en píxeles y dónde va el número (centro de la parte blanca, en unidades del SVG de 120 × 60)
+const MICRO = { alto: { uno: 36, varios: 26 }, centroTexto: [-6, -10], tamTexto: 0.5 };
+const ATLAS_MICRO = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(MICRO_SVG);
+const MAPA_MICRO = { micro: { x: 0, y: 0, width: 120, height: 60, anchorY: 30, mask: false } };
+const iconoMicro = () => "micro";
+// "T405 00I" → "405" (como se publica el servicio); "B20 00R" → "B20"; sin recorrido → nada
+export const numeroRecorrido = r => {
+  if (!r || r === "(sin recorrido)") return "";
+  const s = String(r).split(" ")[0];
+  return /^T\d/.test(s) ? s.slice(1) : s;
+};
+const numeroDe = p => numeroRecorrido(p.recorrido);
+
+function capasMicro(actual) {
+  const alto = tray.varios ? MICRO.alto.varios : MICRO.alto.uno, escala = alto / 60;
+  return [
+    // Seleccionable: son puntos GPS (interpolados), así que comparten tooltip y, con varios buses, el clic
+    // para ver solo ese bus
+    new deck.IconLayer({
+      id: "tray-bus", data: actual, getPosition: posicion, getIcon: iconoMicro, iconAtlas: ATLAS_MICRO,
+      iconMapping: MAPA_MICRO, getSize: alto, sizeUnits: "pixels",
+      pickable: true, autoHighlight: true, highlightColor: [0, 0, 0, 60],
+    }),
+    new deck.TextLayer({
+      id: "tray-bus-numero", data: actual, getPosition: posicion, getText: numeroDe,
+      getSize: Math.round(alto * MICRO.tamTexto), sizeUnits: "pixels",
+      getPixelOffset: [MICRO.centroTexto[0] * escala, MICRO.centroTexto[1] * escala],
+      getTextAnchor: "middle", getAlignmentBaseline: "center",
+      fontFamily: "'Open Sans', Roboto, sans-serif", fontWeight: 800, getColor: [29, 29, 27, 255],
+    }),
+  ];
+}
+
+// Patente de cada bus en marcha, encima de su micro
+const ETIQUETA = { alto: 18, anchoCaracter: 7.5, relleno: 10,
+                   separacion: { uno: MICRO.alto.uno / 2 + 3, varios: MICRO.alto.varios / 2 + 3 } };
 
 function capaEtiquetas(actual) {
   const texto = p => p.patente || "";

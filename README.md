@@ -158,7 +158,7 @@ Para levantarlo en el computador local (con `sts.json` o `config.json` vigentes)
 
 **Sin credenciales (demo con datos SIMULADOS):** `python -m pulso.demo_mapa` genera en `mapa/datos_demo/`
 un día laboral (2026-10-07) y un sábado (2026-10-10) con buses que siguen los trazados y tiempos de viaje
-planificados del GTFS, más ruido (~5 min). No son datos reales: patentes `DEMO-NNNN`, velocidades del
+planificados del GTFS, más ruido (~5 min). No son datos reales: patentes ficticias con formato chileno, velocidades del
 itinerario, y el número de buses sale más alto que la flota real (la asignación de buses a viajes es una
 aproximación). Para levantarlo (bash, desde `mapa/`):
 
