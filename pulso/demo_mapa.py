@@ -31,7 +31,7 @@ SANTIAGO = ZoneInfo("America/Santiago")
 CADA_S = 30          # un punto GPS cada 30 s
 DESCANSO_S = 6 * 60  # descanso mínimo en el terminal antes de reutilizar un bus
 INICIO_DIA_S = 4 * 3600  # día operativo desde las 04:00 (como en mapa/)
-ESQUEMA = pa.schema([("timestamp_gps_utc", pa.timestamp("us")), ("plate", pa.string()),
+ESQUEMA = pa.schema([("timestamp_gps_utc", pa.timestamp("us", tz="UTC")),("plate", pa.string()),
                      ("bus_route_assigned", pa.string()), ("operator_name", pa.string()),
                      ("operator_number", pa.int32()), ("speed", pa.float32()),
                      ("lon", pa.float64()), ("lat", pa.float64())])
