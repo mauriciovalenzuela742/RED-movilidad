@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Velocidad buses RED · calor y recorridos</title>
+<link rel="icon" href="data:,">  <!-- sin ícono propio: evita el pedido a /favicon.ico (404) -->
+
+<link href="/static/vendor/maplibre-gl.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,400,0..1,0&display=block" rel="stylesheet">
+<link href="/static/css/estilos.css" rel="stylesheet">
+<!-- Bibliotecas autohospedadas (globales `maplibregl` y `deck`) y la configuración del período (`CONFIG`) -->
+<script src="/static/vendor/maplibre-gl.js"></script>
+<script src="/static/vendor/deck.gl.min.js"></script>
+<script src="/config.js"></script>
+<script type="module" src="/static/js/main.js"></script>
+</head>
+<body>
+<div id="mapa" role="region" aria-label="Mapa de velocidad"></div>
+<div id="cargando" class="aviso" role="status" aria-live="polite" hidden><span class="spinner" aria-hidden="true"></span><span class="texto">Consultando…</span></div>
+<div id="error" class="aviso" role="alert" hidden>
+  <span class="texto" id="errorTxt"></span>
+  <button id="errorReintentar" type="button">Reintentar</button>
+  <button id="errorCerrar" type="button" class="btn-icono" aria-label="Cerrar aviso"><span class="ms" aria-hidden="true">close</span></button>
+</div>
+
+<aside id="panel" class="panel" aria-label="Filtros y controles del mapa">
+  <div class="panel-cab">
+    <div>
+      <h1>Velocidad de buses RED · Santiago</h1>
+      <div class="sub" id="periodo"></div>
+    </div>
+    <button id="plegarPanel" type="button" class="btn-icono" aria-expanded="true" aria-controls="panel"
+            aria-label="Plegar panel" title="Plegar panel"><span class="ms" aria-hidden="true">expand_less</span></button>
+  </div>
+
+  <!-- Vista del mapa: la navegación principal, arriba y siempre a la vista -->
+  <div class="nav-modos" role="group" aria-label="Vista del mapa">
+    <button data-modo="calor" class="activo" aria-pressed="true"><span class="ms" aria-hidden="true">local_fire_department</span><span class="et">Calor</span></button>
+    <button data-modo="recorrido" id="btnRecorrido" aria-pressed="false" aria-describedby="notaModos"><span class="ms" aria-hidden="true">alt_route</span><span class="et">Recorridos</span></button>
+    <button data-modo="trayecto" id="btnTrayecto" aria-pressed="false" aria-describedby="notaModos"><span class="ms" aria-hidden="true">timeline</span><span class="et">Trayecto</span></button>
+  </div>
+  <div class="nota" id="notaModos">Elige un servicio, recorrido o bus para ver Recorridos y Trayecto.</div>
+
+  <h2>Filtros</h2>
+  <label for="f_servicio">Servicio (ej. T504)</label>
+  <div class="filtro"><select id="f_servicio"></select><button data-limpiar="servicio" title="Quitar filtro de servicio" class="btn-icono" aria-label="Quitar filtro de servicio" hidden><span class="ms" aria-hidden="true">close</span></button></div>
+  <label for="f_sentido">Sentido</label>
+  <div class="filtro"><select id="f_sentido"></select><button data-limpiar="sentido" title="Quitar filtro de sentido" class="btn-icono" aria-label="Quitar filtro de sentido" hidden><span class="ms" aria-hidden="true">close</span></button></div>
+  <label for="f_recorrido">Recorrido (servicio + variante + sentido)</label>
+  <div class="filtro"><select id="f_recorrido"></select><button data-limpiar="recorrido" title="Quitar filtro de recorrido" class="btn-icono" aria-label="Quitar filtro de recorrido" hidden><span class="ms" aria-hidden="true">close</span></button></div>
+  <label for="f_patente">Bus (patente)</label>
+  <div class="filtro"><select id="f_patente"></select><button data-limpiar="patente" title="Quitar filtro de bus" class="btn-icono" aria-label="Quitar filtro de bus" hidden><span class="ms" aria-hidden="true">close</span></button></div>
+  <button id="limpiarTodo" class="btn-tonal" disabled><span class="ms" aria-hidden="true">filter_alt_off</span>Quitar todos los filtros</button>
+
+  <div id="resumen" aria-live="polite"></div>
+
+  <h2>Mapa</h2>
+  <div id="leyendaRec" hidden></div>
+
+  <!-- Trayecto: un bus (o todos los de lo filtrado) en un día, para verlo y reproducirlo -->
+  <div id="trayPanel" hidden>
+    <label for="trayDia" title="Día operativo: de 04:00 a 04:00 del día siguiente, para que los viajes nocturnos queden enteros">Día operativo (04:00 a 04:00)</label>
+    <select id="trayDia"></select>
+    <fieldset class="seg" id="trayColor">
+      <legend>Colorear las líneas por</legend>
+      <label><input type="radio" name="trayColor" value="velocidad"><span>Velocidad</span></label>
+      <label><input type="radio" name="trayColor" value="recorrido"><span>Recorrido</span></label>
+    </fieldset>
+    <div id="trayLeyendaVel" class="leyenda-vel" hidden>
+      <div class="barra" aria-hidden="true"></div>
+      <div class="ejes"><span>≤ 10</span><span>km/h (≈ 25 en gris)</span><span>≥ 40</span></div>
+    </div>
+    <div id="trayRecs"></div>
+    <label class="chk"><input type="checkbox" id="trayEtiquetas" checked> Mostrar la patente sobre cada micro en la reproducción</label>
+    <div id="trayResumen" class="nota"></div>
+    <div id="trayBuses"></div>
+  </div>
+
+  <!-- Controles que solo aplican al mapa de calor -->
+  <div id="ctrlCeldas">
+    <label for="metrica">Métrica</label>
+    <select id="metrica">
+      <option value="vel_mov">Velocidad media en movimiento</option>
+      <option value="vel_efec">Velocidad media efectiva (incl. detenciones)</option>
+      <option value="vel_com">Velocidad comercial en ruta (km recorridos / tiempo)</option>
+      <option value="pct_det">% de registros detenido</option>
+    </select>
+
+    <label for="tipoDia">Tipo de día</label>
+    <select id="tipoDia">
+      <option value="todos">Todos</option>
+      <option value="0">Laborales</option>
+      <option value="1">Fin de semana y feriados</option>
+    </select>
+
+    <label for="hora">Hora local (Chile)</label>
+    <div class="fila">
+      <button id="play" class="btn-icono-tonal" title="Animar por hora" aria-label="Animar por hora"><span class="ms" aria-hidden="true">play_arrow</span></button>
+      <input id="hora" type="range" min="0" max="23" value="8" disabled>
+      <span class="valor" id="horaTxt"></span>
+    </div>
+    <label class="chk"><input type="checkbox" id="todoDia" checked> Todo el día</label>
+  </div>
+
+  <div id="ctrlMinObs">
+    <label for="minObs">Mínimo de registros por celda</label>
+    <div class="fila"><input id="minObs" type="range" min="1" max="300" value="30"><span class="valor" id="minObsTxt"></span></div>
+  </div>
+
+  <div id="ctrlRadio">
+    <label for="radio">Radio del calor (px)</label>
+    <div class="fila"><input id="radio" type="range" min="5" max="60" value="18"><span class="valor" id="radioTxt"></span></div>
+  </div>
+
+  <div id="leyenda">
+    <div id="barra"></div>
+    <div class="ejes"><span id="legMin"></span><span id="legTit"></span><span id="legMax"></span></div>
+  </div>
+  <div id="estado" aria-live="polite"></div>
+
+  <!-- Capas del proyecto (GTFS, pendiente GTFS + DEM, paraderos, cargadores): js/referencia.js -->
+  <div id="refPanel" hidden>
+    <h2>Capas de referencia</h2>
+    <div class="lista" role="group" aria-label="Capas de referencia"></div>
+    <div class="leyenda-pend" hidden></div>
+    <div class="nota nota-ref" hidden></div>
+  </div>
+</aside>
+
+<!-- Reproducción del trayecto: al pie del mapa, siempre a la vista mientras se reproduce -->
+<div id="reproductor" class="reproductor" role="group" aria-label="Reproducción del día" hidden>
+  <button id="trayPlay" type="button" class="btn-icono-tonal" title="Reproducir (barra espaciadora)" aria-label="Reproducir"
+          aria-keyshortcuts="Space"><span class="ms" aria-hidden="true">play_arrow</span></button>
+  <output id="trayHora" for="trayTiempo" aria-live="off">todo</output>
+  <label for="trayTiempo" class="sr">Hora del día</label>
+  <input id="trayTiempo" type="range" min="14400" max="100799" value="14400" step="30">
+  <label for="trayVel" class="sr">Velocidad de reproducción</label>
+  <select id="trayVel" title="Tiempo del día que pasa por cada segundo">
+    <option value="60">1 min/s</option>
+    <option value="300">5 min/s</option>
+    <option value="900">15 min/s</option>
+    <option value="1500" selected>25 min/s</option>
+    <option value="3600">1 h/s</option>
+    <option value="7200">2 h/s</option>
+  </select>
+  <button id="trayTodo" type="button" class="btn-texto" title="Detener y ver el día completo">Día completo</button>
+</div>
+
+<button id="abrirRanking" type="button" hidden aria-controls="panelRanking" aria-expanded="false">
+  <span class="ms" aria-hidden="true">leaderboard</span>Ranking</button>
+<aside id="panelRanking" class="panel" aria-labelledby="tituloRanking">
+  <div class="panel-cab">
+    <div><h2 id="tituloRanking">Ranking de recorridos</h2>
+      <div class="nota" id="ordenRanking" style="margin-top:0"></div></div>
+    <button id="cerrarRanking" type="button" class="btn-icono" aria-label="Cerrar ranking" title="Cerrar ranking"
+            aria-controls="panelRanking"><span class="ms" aria-hidden="true">close</span></button>
+  </div>
+  <div id="tablaCont"><table>
+    <caption class="sr">Recorridos con sus registros, velocidades, porcentaje detenido y buses</caption>
+    <thead><tr>
+      <th scope="col" data-orden="id"><button type="button">Recorrido<span class="ms" aria-hidden="true"></span></button></th>
+      <th scope="col" data-orden="n"><button type="button">Registros<span class="ms" aria-hidden="true"></span></button></th>
+      <th scope="col" data-orden="vel_mov"><button type="button" title="Velocidad media en movimiento">km/h mov.<span class="ms" aria-hidden="true"></span></button></th>
+      <th scope="col" data-orden="vel_com"><button type="button" title="Velocidad comercial en ruta">km/h ruta<span class="ms" aria-hidden="true"></span></button></th>
+      <th scope="col" data-orden="pct_det"><button type="button" title="Porcentaje de registros detenido">% det.<span class="ms" aria-hidden="true"></span></button></th>
+      <th scope="col" data-orden="buses"><button type="button">Buses<span class="ms" aria-hidden="true"></span></button></th>
+    </tr></thead>
+    <tbody id="tabla"></tbody>
+  </table></div>
+  <div class="nota" id="notaRanking"></div>
+</aside>
+</body>
+</html>

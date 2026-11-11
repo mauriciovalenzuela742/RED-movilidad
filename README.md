@@ -41,7 +41,8 @@ Leer esta sección basta para continuar; no hace falta recorrer el código.
 
 | Carpeta / archivo | Qué contiene |
 |---|---|
-| `pulso/` | Paquete Python del proyecto. `datopia.py`: login al lakehouse, credenciales STS de 1 h y conexión DuckDB. `ping.py`: prueba rápida de acceso. `coverage.py`: qué días existen y cuántas filas/buses tiene cada uno. `quality.py`: perfil de calidad (duplicados, saltos, muestreo, strings de ruta). `segments.py`: capa de referencia de tramos de 100 m desde GTFS + DEM. `evrp.py`: ruteo de flotas eléctricas dependiente de la hora (costos sintéticos por ahora). `testing.py`: datos sintéticos con el esquema real para tests. |
+| `pulso/` | Paquete Python del proyecto. `datopia.py`: login al lakehouse, credenciales STS de 1 h y conexión DuckDB. `ping.py`: prueba rápida de acceso. `coverage.py`: qué días existen y cuántas filas/buses tiene cada uno. `quality.py`: perfil de calidad (duplicados, saltos, muestreo, strings de ruta). `segments.py`: capa de referencia de tramos de 100 m desde GTFS + DEM. `evrp.py`: ruteo de flotas eléctricas dependiente de la hora (costos sintéticos por ahora). `testing.py`: datos sintéticos con el esquema real para tests. `descarga_mapa.py`: baja días del lakehouse para el mapa de velocidad. |
+| `mapa/` | Mapa de velocidad de Flavio Poblete: mapa de calor y reproducción de trayectos de buses (ver sección *Mapa de velocidad*). |
 | `tests/` | Tests offline con `pytest` (no requieren credenciales ni internet). |
 | `slurm/` | Jobs para el clúster NLHPC (Leftraru): `sync.sh` copia el código, `_env.sh` arma el entorno en el nodo, `00_selftest`, `01_coverage`, `02_quality` y la plantilla `10_days_array` (un job por día). |
 | `data/external/` | Datos públicos descargados (ver tabla abajo y [`SOURCES.md`](data/external/SOURCES.md) con URL, fecha, tamaño y licencia de cada uno). |
@@ -132,3 +133,53 @@ con.sql(f"SELECT count(*) FROM {d.read_sql(d.day_path('2026-10-15'))}")
 
 Las particiones son por día UTC. Para un día calendario de Santiago usar
 `d.local_day_paths(day)` junto con `d.local_day_where(day)` (se necesitan ambos).
+
+---
+
+## Mapa de velocidad (mapa de calor y trayectos de buses) — `mapa/`
+
+Visualizador desarrollado por Flavio Poblete ([flaviopoblete/do](https://github.com/flaviopoblete/do),
+commit `ed834ed`), incorporado tal cual en `mapa/`: API FastAPI + Polars y página deck.gl/MapLibre con
+**mapa de calor** de velocidad por celda de ~100 m y hora (animado), **recorridos**, y **trayecto**: la
+reproducción en el tiempo de los buses de un servicio o de una patente durante un día. Detalle completo en
+[`mapa/README.md`](mapa/README.md). Tiene su propio entorno (`mapa/.venv`, con `uv`).
+
+Para levantarlo en el computador local (con `sts.json` o `config.json` vigentes):
+
+    # 1. Bajar los días (particiones UTC) a mapa/datos_local/ — solo las columnas del mapa, retoma si se corta.
+    #    Para ver un día operativo completo (04:00–04:00) bajar también el día UTC siguiente.
+    .venv/Scripts/python.exe -m pulso.descarga_mapa --desde 2026-10-06 --hasta 2026-10-13
+
+    # 2. Caché y servidor (desde mapa/)
+    cd mapa
+    uv sync
+    uv run mapa-cache --mes 2026-10       # o --dia 2026-10-07 para un solo día (más rápido)
+    uv run mapa-api --periodo 2026-10     # abrir http://127.0.0.1:8900
+
+**Sin credenciales (demo con datos SIMULADOS):** `python -m pulso.demo_mapa` genera en `mapa/datos_demo/`
+un día laboral (2026-10-07) y un sábado (2026-10-10) con buses que siguen los trazados y tiempos de viaje
+planificados del GTFS, más ruido (~5 min). No son datos reales: patentes ficticias con formato chileno, velocidades del
+itinerario, y el número de buses sale más alto que la flota real (la asignación de buses a viajes es una
+aproximación). Para levantarlo (bash, desde `mapa/`):
+
+    DATOS_LOCAL="$PWD/datos_demo" CACHE_BASE="$PWD/cache_demo" uv run mapa-cache --mes 2026-10
+    DATOS_LOCAL="$PWD/datos_demo" CACHE_BASE="$PWD/cache_demo" uv run mapa-api --periodo 2026-10
+
+**Capas de referencia del proyecto en el mapa.** `python -m pulso.capas_mapa` (~1 min) exporta a `mapa/capas/`
+cuatro capas que el mapa ofrece en el bloque *Capas de referencia* del panel, encima de cualquier vista
+(calor, recorridos o trayecto) y guardadas en la URL (`?capas=trazados,pendiente`):
+
+| Capa | Fuente | Qué muestra |
+|---|---|---|
+| Trazados GTFS | `data/derived/shapes.parquet` | Trazado oficial de cada recorrido; con un servicio filtrado, solo el suyo |
+| Pendiente de las calles | `segments` + `physical_segments` (GTFS + DEM satelital Copernicus GLO-30) | 44 mil tramos de ~100 m coloreados por pendiente |
+| Paraderos | `data/derived/shape_stops.parquet` | Paraderos con los servicios que se detienen; con filtro, solo los del servicio |
+| Cargadores eléctricos | `data/external/chargers` (OSM) | 144 estaciones (incluye algunas de la costa: Valparaíso, San Antonio) |
+
+El cruce servicio GTFS → servicio del GPS usa una regla **provisional** (`"405"` → `"T405"`) hasta revisar
+los textos de ruta reales (PLAN.md, línea A). Si `mapa/capas/` no existe, el mapa funciona igual sin el bloque.
+
+`mapa-cache --mes` toma todos los días de ese mes que haya en `datos_local/`. Tests del mapa:
+`cd mapa && uv run pytest`. El `demo.ipynb` de `mapa/` es el notebook original de Flavio (descarga con
+usuario y contraseña); `pulso.descarga_mapa` hace lo mismo con cualquiera de nuestras credenciales,
+incluidas las STS temporales.

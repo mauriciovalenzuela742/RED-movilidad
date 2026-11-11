@@ -1,0 +1,21 @@
+# Entorno de Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Datos: no se suben al repo
+datos_local/
+cache_polars_*/
+*.parquet
+
+# Credenciales del lakehouse (copiar config.example.json → config.json)
+config.json
+
+# Temporales del notebook de descarga
+duckdb_tmp/
+.ipynb_checkpoints/
+
+# Capas de referencia (python -m pulso.capas_mapa): se regeneran
+capas/
